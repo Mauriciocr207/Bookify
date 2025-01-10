@@ -19,7 +19,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/Mauriciocr207/Bookify">
-    <img src="src/app/favicon.ico" alt="Logo" width="150" height="150">
+    <img src="public/bookify-dark.svg" alt="Logo" width="150" height="150">
   </a>
   <p align="center">
     Web app for manage academic books

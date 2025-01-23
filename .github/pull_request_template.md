@@ -1,3 +1,7 @@
+> **⚠️ Nota:**  
+> Haz clic en la pestaña **Preview** en la parte superior derecha para visualizar correctamente esta plantilla.
+
+
 # Pull Request Templates  
 Selecciona una plantilla
 

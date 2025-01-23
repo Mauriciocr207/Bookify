@@ -5,7 +5,7 @@
 @layer utilities {
   .gradient-title {
     background: linear-gradient(
-      to right,
+      to left,
       #f0ff6d 0%,
       #54ff5c 34%,
       #6498ff 68%,
@@ -16,6 +16,9 @@
     -webkit-text-fill-color: transparent;
   }
   .card-gradient {
-    background: linear-gradient(to top, #00000000 50%, #000000 100%);
+    background: linear-gradient(to bottom, #00000000 40%, #000000 100%);
+  }
+  .container {
+    @apply mx-auto max-w-6xl;
   }
 }

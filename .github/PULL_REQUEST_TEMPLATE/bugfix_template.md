@@ -1,28 +1,28 @@
-# 🐛 Bug Fix: [Título descriptivo del problema solucionado]
+# 🐛 Bug Fix: [Descriptive title of the issue fixed]
 
-## 📝 Descripción del problema
-Describe claramente el error que este Pull Request soluciona.
+## 📝 Problem Description
+Clearly describe the bug that this Pull Request fixes.
 
-- ¿Cuál era el comportamiento esperado?
-- ¿Qué comportamiento incorrecto se observó?
+- What was the expected behavior?
+- What incorrect behavior was observed?
 
-## 🛠️ Solución propuesta
-Explica brevemente los cambios realizados para resolver el problema.
+## 🛠️ Proposed Solution
+Briefly explain the changes made to resolve the issue.
 
-## 🚨 Pasos para reproducir el error
-1. [Paso 1]
-2. [Paso 2]
-3. [Paso 3]
+## 🚨 Steps to Reproduce the Bug
+1. [Step 1]
+2. [Step 2]
+3. [Step 3]
 
-## ✅ Criterios de aceptación
-- [ ] El error está solucionado.
-- [ ] Las pruebas están actualizadas y pasan correctamente.
-- [ ] La documentación refleja los cambios realizados.
+## ✅ Acceptance Criteria
+- [ ] The bug is fixed.
+- [ ] The tests are updated and pass successfully.
+- [ ] The documentation reflects the changes made.
 
-## 📷 Capturas de pantalla / Logs (si aplica)
-Incluye cualquier imagen, gif o logs que demuestren la solución.
+## 📷 Screenshots / Logs (if applicable)
+Include any images, GIFs, or logs that demonstrate the fix.
 
 ---
 
-### 📌 Notas adicionales
-Cualquier contexto adicional o detalle importante para entender el PR.
+### 📌 Additional Notes
+Any additional context or important details for understanding the PR.

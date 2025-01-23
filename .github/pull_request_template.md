@@ -1,18 +1,17 @@
-> **⚠️ Nota:**  
-> Haz clic en la pestaña **Preview** en la parte superior derecha para visualizar correctamente esta plantilla.
-
+**⚠️ Note:**  
+Click on the **Preview** tab at the top right to correctly view this template.
 
 # Pull Request Templates  
-Selecciona una plantilla
+Select a template
 
-| **Plantilla**           | **Descripción**                                         |
-|--------------------------|--------------------------------------------------------|
-| [🚀 Feature Template](?expand=1&template=feature_template.md) | Usa esta plantilla si tu PR introduce nuevas funcionalidades o mejoras. |
-| [🐛 Bugfix Template](?expand=1&template=bugfix_template.md)   | Usa esta plantilla si tu PR resuelve un problema o corrige un error.     |
+| **Template**            | **Description**                                         |
+|-------------------------|--------------------------------------------------------|
+| [🚀 Feature Template](?expand=1&template=feature_template.md) | Use this template if your PR introduces new features or improvements. |
+| [🐛 Bugfix Template](?expand=1&template=bugfix_template.md)   | Use this template if your PR fixes an issue or bug.     |
 
 ---
 
-## Cómo usar  
-1. Haz clic en el enlace correspondiente en la tabla anterior.  
-2. La plantilla seleccionada se cargará automáticamente en la descripción del Pull Request.  
-3. Completa los detalles requeridos en la plantilla.
+## How to use  
+1. Click on the corresponding link in the table above.  
+2. The selected template will automatically load in the Pull Request description.  
+3. Complete the required details in the template.

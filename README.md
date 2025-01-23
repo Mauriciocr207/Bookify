@@ -61,7 +61,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-Bookify is a web platform that makes it easy to access, organize, and manage digital books, helping students share knowledge and resources. The goal is to make learning more accessible by providing simple tools for uploading, searching, and sharing educational content.
+Bookify is a web platform that makes it easy to access, organize, and manage free access digital books, helping students share knowledge and resources. The goal is to make learning more accessible by providing simple tools for uploading, searching, and sharing educational content.
 
 With Bookify, you can organize your books into folders, save your favorites, and share ideas through quick downloads and easy storage options. This project is made to be a helpful and straightforward tool for students to keep track of their books. Hope you enjoy using it!
 

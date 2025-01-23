@@ -1,23 +1,23 @@
-# 🚀 Feature Request: [Título descriptivo de la funcionalidad]
+# 🚀 Feature Request: [Descriptive title of the feature]
 
-## 📝 Descripción
-Describe claramente la nueva funcionalidad o mejora que este Pull Request introduce al proyecto.
+## 📝 Description
+Clearly describe the new functionality or improvement that this Pull Request introduces to the project.
 
-- ¿Qué problema resuelve esta funcionalidad?
-- ¿Cómo mejora la experiencia del usuario o el sistema?
+- What problem does this functionality solve?
+- How does it improve the user experience or the system?
 
-## ✅ Criterios de aceptación
-- [ ] Funcionalidad implementada correctamente.
-- [ ] Las pruebas correspondientes están actualizadas y pasan correctamente.
-- [ ] Documentación actualizada con los cambios.
+## ✅ Acceptance Criteria
+- [ ] Functionality implemented correctly.
+- [ ] Corresponding tests are updated and pass successfully.
+- [ ] Documentation updated with the changes.
 
-## 🔗 Recursos adicionales
-Incluye cualquier enlace relacionado, como documentación, diseños, mockups o tickets del sistema de seguimiento.
+## 🔗 Additional Resources
+Include any relevant links such as documentation, designs, mockups, or issue tracker tickets.
 
-## 📷 Capturas de pantalla o video (si aplica)
-Agrega imágenes o gifs que muestren la nueva funcionalidad en acción.
+## 📷 Screenshots or video (if applicable)
+Add images or GIFs that show the new functionality in action.
 
 ---
 
-### 📌 Notas adicionales
-Cualquier otro detalle importante que el equipo deba considerar.
+### 📌 Additional Notes
+Any other important details the team should consider.

@@ -2,7 +2,7 @@ name: up-to-date
 
 on:
   pull_request:
-    branches: [ $default-branch ]
+    branches: [ main ]
 
 jobs:
   check-up-to-date:

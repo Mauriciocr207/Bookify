@@ -1,4 +1,4 @@
-name: Ensure branch is up-to-date with main
+name: Ensure branch is up-to-date
 
 on:
   pull_request:
@@ -7,7 +7,7 @@ on:
 
 jobs:
   check-up-to-date:
-    name: Ensure branch is up-to-date
+    name: branch-up-to-date
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository

@@ -1,4 +1,4 @@
-import { Button } from "@heroui/button";
+import FilterButton from "./FilterButton";
 
 export default function Filter({
   title,
@@ -13,15 +13,7 @@ export default function Filter({
         {title}
       </h3>
       <div className="flex gap align-center justify-center gap-2 flex-wrap w-fit">
-        {tags.map((tagTitle) => (
-          <Button
-            size="sm"
-            className="h-auto m-w-16 px-2.5 py-1.5 font-medium text-xs bg-blue-transparent text-blue rounded-full"
-            key={tagTitle}
-          >
-            {tagTitle}
-          </Button>
-        ))}
+        {tags.map((tagTitle) => <FilterButton key={tagTitle} tagTitle={tagTitle} />)}
       </div>
     </div>
   );

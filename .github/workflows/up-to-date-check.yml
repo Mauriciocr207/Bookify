@@ -1,9 +1,8 @@
-name: Ensure branch is up-to-date
+name: up-to-date
 
 on:
   pull_request:
-    branches:
-      - main
+    branches: [ $default-branch ]
 
 jobs:
   check-up-to-date:

@@ -7,7 +7,7 @@ on:
 
 jobs:
   check-up-to-date:
-    name: branch-up-to-date
+    name: Ensure branch is up-to-date
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository

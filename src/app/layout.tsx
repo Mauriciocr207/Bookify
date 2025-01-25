@@ -19,8 +19,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${inter.variable} antialiased`}>
+    <html lang="en" className="transition-colors duration-200 ease-in-out">
+      <body className={`${inter.variable} antialiased dark:bg-blue-dark`}>
         <Providers>{children}</Providers>
       </body>
     </html>

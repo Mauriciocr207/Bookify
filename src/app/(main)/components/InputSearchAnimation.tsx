@@ -44,9 +44,9 @@ export default function InputSearchAnimation({
   }, [inputSearch]);
 
   return (
-    <div className=" relative" style={{ width: inputSearchWidth }}>
+    <div className="relative" style={{ width: inputSearchWidth }}>
       <div
-        className="absolute -z-10 h-[250px] bottom-0"
+        className="absolute z-20 h-[250px] bottom-0 text-gray-icon dark:text-blue-light-2"
         style={{ width: inputSearchWidth }}
       >
         {inputSearchWidth && getAnimations(inputSearchWidth)}

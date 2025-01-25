@@ -14,7 +14,7 @@ export default function FilterButton({ tagTitle }: { tagTitle: string }) {
     <Button
       size="sm"
       className={`h-auto m-w-16 px-2.5 py-1.5 font-medium text-xs ${
-        clicked ? "bg-blue text-white" : "bg-blue-transparent text-blue"
+        clicked ? "bg-blue text-white dark:text-gray-light-2" : "bg-blue-transparent text-blue"
       } rounded-full`}
       key={tagTitle}
       onPress={handleClick}

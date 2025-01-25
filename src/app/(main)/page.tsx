@@ -99,19 +99,19 @@ const books: BookInterface[] = [
 export default function Home() {
   return (
     <>
-      <main className="flex flex-col gap-8 row-start-2 items-center justify-center mt-20">
-        <h1 className="max-w-4xl text-6xl font-black text-center text-blue-dark">
+      <main className="flex flex-col gap-8 row-start-2 items-center justify-center mt-20 relative z-40">
+        <h1 className="max-w-4xl text-6xl font-black text-center text-blue-night dark:text-white">
           Explora, comparte y aprende con{" "}
           <span className="gradient-title">Bookify</span>.
         </h1>
-        <p className="text-xl text-blue-dark font-medium">
+        <p className="text-xl text-blue-night font-medium dark:text-white">
           El conocimiento al alcance de todos.
         </p>
         <div className="flex gap-4">
-          <Button as={Link} href={ROUTES.SAVED_BOOKS} className="bg-blue-dark text-white px-8 py-2 rounded-md font-bold">
+          <Button as={Link} href={ROUTES.SAVED_BOOKS} className="bg-blue-night text-white dark:bg-blue-light px-8 py-2 rounded-md font-bold">
             Explora
           </Button>
-          <Button as={Link} href={ROUTES.SHARE_BOOKS} className="bg-white text-blue-dark border-blue-dark border-1 border-solid px-8 py-2 rounded-md font-bold">
+          <Button as={Link} href={ROUTES.SHARE_BOOKS} className="bg-white text-blue-night border-blue-night dark:text-blue-light dark:border-blue-ligth border-1 border-solid px-8 py-2 rounded-md font-bold">
             Colabora
           </Button>
         </div>

@@ -7,6 +7,7 @@ import { ROUTES } from "@constants";
 import { usePathname } from "next/navigation";
 import BookifyIcon from "@components/icons/BookifyIcon";
 import SunIcon from "@components/icons/SunIcon";
+import { Navbar } from "@heroui/navbar";
 
 export default function Header() {
   const pathname = usePathname();
@@ -14,16 +15,18 @@ export default function Header() {
   const { setTheme } = useTheme();
 
   return (
-    <header className="bg-white px-4">
-      <div className="container flex justify-between items-center py-11">
+    <header className="px-4">
+      <nav className="container flex justify-between items-center py-11">
         <Link href={ROUTES.HOME}>
           <BookifyIcon />
         </Link>
-        <nav className="flex justify-between items-center gap-11 font-bold text-gray">
+        <div className="flex justify-between items-center gap-11 font-bold">
           <Link
             href={ROUTES.SAVED_BOOKS}
             className={`${
-              isActiveLink(ROUTES.SAVED_BOOKS) ? "text-blue" : "text-gray"
+              isActiveLink(ROUTES.SAVED_BOOKS)
+                ? "text-blue dark:text-blue-light-2"
+                : "hover:text-blue-light text-gray dark:text-gray-light-3 dark:hover:text-blue-light-2"
             }`}
           >
             Guardados
@@ -31,12 +34,14 @@ export default function Header() {
           <Link
             href={ROUTES.SHARE_BOOKS}
             className={`${
-              isActiveLink(ROUTES.SHARE_BOOKS) ? "text-blue" : "text-gray"
+              isActiveLink(ROUTES.SHARE_BOOKS)
+                ? "text-blue dark:text-blue-light-2"
+                : "hover:text-blue-light text-gray dark:text-gray-light-3 dark:hover:text-blue-light-2"
             }`}
           >
             Colabora
           </Link>
-        </nav>
+        </div>
         <Button
           isIconOnly
           variant="light"
@@ -44,9 +49,9 @@ export default function Header() {
             setTheme((theme: string) => (theme === "light" ? "dark" : "light"))
           }
         >
-            <SunIcon />
+          <SunIcon />
         </Button>
-      </div>
+      </nav>
     </header>
   );
 }

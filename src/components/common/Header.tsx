@@ -7,7 +7,6 @@ import { ROUTES } from "@constants";
 import { usePathname } from "next/navigation";
 import BookifyIcon from "@components/icons/BookifyIcon";
 import SunIcon from "@components/icons/SunIcon";
-import { Navbar } from "@heroui/navbar";
 
 export default function Header() {
   const pathname = usePathname();

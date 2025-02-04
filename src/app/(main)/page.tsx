@@ -25,70 +25,70 @@ const filteringTags = [
 const books: BookInterface[] = [
   {
     title: "Física para todos",
-    url: "/1.jpg",
+    imageUrl: "/1.jpg",
     author: "Albert Einstein",
     category: "Física",
     likes: 145,
   },
   {
     title: "Física para todos",
-    url: "/1.jpg",
+    imageUrl: "/1.jpg",
     author: "Albert Einstein",
     category: "Física",
     likes: 145,
   },
   {
     title: "Física para todos",
-    url: "/1.jpg",
+    imageUrl: "/1.jpg",
     author: "Albert Einstein",
     category: "Física",
     likes: 145,
   },
   {
     title: "Física para todos",
-    url: "/1.jpg",
+    imageUrl: "/1.jpg",
     author: "Albert Einstein",
     category: "Física",
     likes: 145,
   },
   {
     title: "Física para todos",
-    url: "/1.jpg",
+    imageUrl: "/1.jpg",
     author: "Albert Einstein",
     category: "Física",
     likes: 145,
   },
   {
     title: "Física para todos",
-    url: "/1.jpg",
+    imageUrl: "/1.jpg",
     author: "Albert Einstein",
     category: "Física",
     likes: 145,
   },
   {
     title: "Física para todos",
-    url: "/1.jpg",
+    imageUrl: "/1.jpg",
     author: "Albert Einstein",
     category: "Física",
     likes: 145,
   },
   {
     title: "Física para todos",
-    url: "/1.jpg",
+    imageUrl: "/1.jpg",
     author: "Albert Einstein",
     category: "Física",
     likes: 145,
   },
   {
     title: "Física para todos",
-    url: "/1.jpg",
+    imageUrl: "/1.jpg",
     author: "Albert Einstein",
     category: "Física",
     likes: 145,
   },
   {
     title: "Física para todos",
-    url: "/1.jpg",
+    imageUrl: "/1.jpg",
     author: "Albert Einstein",
     category: "Física",
     likes: 145,
@@ -122,7 +122,7 @@ export default function Home() {
           <Filter title="Ciencia" tags={filteringTags} />
           <Filter title="Categorías" tags={filteringTags} />
         </div>
-        <div className="flex flex-wrap gap-4 mt-8 max-w-5xl justify-center">
+        <div className="flex flex-wrap gap-4 mt-8 justify-center">
           {books.map((book, i) => (
             <BookItem key={i} {...book} />
           ))}

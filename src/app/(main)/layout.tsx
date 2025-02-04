@@ -8,7 +8,7 @@ export default function WhiteLayout({
   return (
     <>
       <Header />
-      <div className="container px-4">
+      <div className="container px-4 overflow-hidden">
         {children}
         <Footer />
       </div>

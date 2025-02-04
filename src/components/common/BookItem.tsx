@@ -19,8 +19,12 @@ const ANIMATE_CONFIG: useIconAnimateProps = {
   },
 };
 
-export default function BookItem({ title, url, likes }: BookInterface) {
-  const [bookSaved, setBookSaved] = useState(false);
+interface Props extends BookInterface {
+    isSaved: boolean
+}
+
+export default function BookItem({ title, imageUrl, likes, isSaved  }: Props) {
+  const [bookSaved, setBookSaved] = useState(isSaved);
   const [isBookLiked, setIsBookLiked] = useState(false);
   const {
     scope: bookmarkScope,
@@ -35,7 +39,7 @@ export default function BookItem({ title, url, likes }: BookInterface) {
   const {
     props: { srcSet },
   } = getImageProps({
-    src: url,
+    src: imageUrl,
     width: 190,
     height: 290,
     alt: title,

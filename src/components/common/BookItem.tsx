@@ -4,9 +4,10 @@ import { HeartIcon, BookmarkIcon, DownloadIcon } from "@components/icons";
 import { BookInterface } from "@interfaces";
 import { getImageProps } from "next/image";
 import { getBackgroundImage } from "@utils";
-import { Button } from "@heroui/react";
+import { Button, useDisclosure } from "@heroui/react";
 import { useState } from "react";
 import { useIconAnimate, useIconAnimateProps } from "@hooks";
+import BookItemModal from "./BookItemModal";
 
 const ANIMATE_CONFIG: useIconAnimateProps = {
   handlePressStartAnimation: {
@@ -19,34 +20,53 @@ const ANIMATE_CONFIG: useIconAnimateProps = {
   },
 };
 
-export default function BookItem({ title, url, likes }: BookInterface) {
-  const [bookSaved, setBookSaved] = useState(false);
+interface Props {
+  book: BookInterface;
+  isSaved?: boolean;
+}
+
+export default function BookItem({ book, isSaved = false }: Props) {
+  const disclosureHook = useDisclosure();
+  const [bookSaved, setBookSaved] = useState(isSaved);
   const [isBookLiked, setIsBookLiked] = useState(false);
+
   const {
     scope: bookmarkScope,
-    handlePress: bookmarkHandlePress,
-    handlePressStart: bookmarkHandlePressStart,
-  } = useIconAnimate({ ...ANIMATE_CONFIG, handlePressEvent: handleBookSave });
+    upAnimate: upAnimateBookmark,
+    downAnimate: downAnimateBookmark,
+  } = useIconAnimate(ANIMATE_CONFIG);
   const {
     scope: heartScope,
-    handlePress: heartHandlePress,
-    handlePressStart: heartHandlePressStart,
-  } = useIconAnimate({ ...ANIMATE_CONFIG, handlePressEvent: handleBookLike });
+    upAnimate: upAnimateHeart,
+    downAnimate: downAnimateHeart,
+  } = useIconAnimate(ANIMATE_CONFIG);
   const {
     props: { srcSet },
   } = getImageProps({
-    src: url,
+    src: book.imageUrl,
     width: 190,
     height: 290,
-    alt: title,
+    alt: book.title,
   });
   const backgroundImage = getBackgroundImage(srcSet);
 
-  function handleBookSave() {
-    setBookSaved((prev) => !prev);
+  function beginBookSave() {
+    downAnimateBookmark();
+    disclosureHook.onOpen();
+  }
+
+  function onSaveBook(savedId: string) {
+    setBookSaved(true);
+    upAnimateBookmark();
+  }
+
+  function onDeleteBook() {
+    setBookSaved(false);
+    upAnimateBookmark();
   }
 
   function handleBookLike() {
+    downAnimateHeart();
     setIsBookLiked((prev) => !prev);
   }
 
@@ -57,10 +77,10 @@ export default function BookItem({ title, url, likes }: BookInterface) {
     >
       <div className="flex flex-col justify-end gap-2 w-full h-full px-3 pb-3 card-gradient">
         <h3 className="font-semibold text-white text-base text-center">
-          {title}
+          {book.title}
         </h3>
-        <div className="flex gap-14 items-center">
-          <div className="flex gap-3">
+        <div className="flex items-center justify-between">
+          <div className="flex gap-2">
             <Button
               ref={bookmarkScope}
               variant="light"
@@ -68,8 +88,7 @@ export default function BookItem({ title, url, likes }: BookInterface) {
               className="min-w-fit w-fit h-fit overflow-visible hover:bg-none"
               data-hover="false"
               disableAnimation
-              onPressStart={bookmarkHandlePressStart}
-              onPress={bookmarkHandlePress}
+              onPressStart={beginBookSave}
             >
               <BookmarkIcon bold={bookSaved} />
             </Button>
@@ -88,14 +107,21 @@ export default function BookItem({ title, url, likes }: BookInterface) {
             className="min-w-fit w-fit h-fit hover:bg-none text-white font-semibold text-xs flex items-center gap-2 p-0 m-0"
             data-hover="false"
             disableAnimation
-            onPressStart={heartHandlePressStart}
-            onPress={heartHandlePress}
+            onPressStart={downAnimateHeart}
+            onPress={handleBookLike}
           >
             <HeartIcon bold={isBookLiked} />
-            {likes}
+            {book.likes}
           </Button>
         </div>
       </div>
+      <BookItemModal
+        book={book}
+        isSavedBook={bookSaved}
+        disclosureHook={disclosureHook}
+        onSave={onSaveBook}
+        onDelete={onDeleteBook}
+      />
     </div>
   );
 }

@@ -72,7 +72,7 @@ export default function CreateFolderButton() {
                 <Button color="danger" variant="flat" onPress={onClose}>
                   Cerrar
                 </Button>
-                <Button color="primary" onPress={handleCreateFolder}>
+                <Button className="bg-blue text-white" onPress={handleCreateFolder}>
                   Crear
                 </Button>
               </ModalFooter>

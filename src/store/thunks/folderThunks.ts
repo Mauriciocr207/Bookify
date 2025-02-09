@@ -1,17 +1,12 @@
-import {
-  BookInterface,
-  FolderInterface,
-  FolderWithFilesInterface,
-} from "@interfaces";
+import { FolderInterface } from "@interfaces";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { initialState } from "../slices";
-import db from "@dexieDB";
-import { a } from "framer-motion/client";
+import { DexieDB } from "@models";
 
 export const createFolder = createAsyncThunk(
   "folder/createFolder",
   async (folder: FolderInterface) => {
-    await db.folders.add(folder);
+    await DexieDB.folders.add(folder);
     return folder;
   }
 );
@@ -19,7 +14,7 @@ export const createFolder = createAsyncThunk(
 export const updateFolder = createAsyncThunk(
   "folder/updateFolder",
   async (folder: FolderInterface) => {
-    await db.folders.put(folder, folder.id);
+    await DexieDB.folders.put(folder, folder.id);
     return folder;
   }
 );
@@ -28,19 +23,19 @@ export const deleteFolder = createAsyncThunk(
   "folder/deleteFolder",
   async (folderId: string) => {
     async function recursiveDelete(folderId: string) {
-      return db.transaction("rw", db.folders, db.books, async () => {
-        const subfolders = await db.folders
+      return DexieDB.transaction("rw", DexieDB.folders, DexieDB.books, async () => {
+        const subfolders = await DexieDB.folders
           .where("parentId")
           .equals(folderId)
           .primaryKeys();
-        
-        await db.folders.bulkDelete(subfolders);
 
-        for(const subfolder of subfolders) {
-            await recursiveDelete(subfolder);
+        await DexieDB.folders.bulkDelete(subfolders);
+
+        for (const subfolder of subfolders) {
+          await recursiveDelete(subfolder);
         }
 
-        await db.folders.delete(folderId);
+        await DexieDB.folders.delete(folderId);
       });
     }
 
@@ -57,18 +52,18 @@ export const setFolder = createAsyncThunk(
       return await defaultData();
     }
 
-    const folderData = await db.folders.where("id").equals(folderId).first();
+    const folderData = await DexieDB.folders.where("id").equals(folderId).first();
 
     if (!folderData) {
       return await defaultData();
     }
 
-    const books = await db.books
+    const books = await DexieDB.books
       .where("parentId")
       .equals(folderData.id)
       .toArray();
 
-    const folders = await db.folders
+    const folders = await DexieDB.folders
       .where("parentId")
       .equals(folderData.id)
       .toArray();
@@ -85,7 +80,7 @@ async function defaultData() {
   return {
     ...initialState,
     folders:
-      (await db.folders.where("parentId").equals("root").toArray()) || [],
-    books: (await db.books.where("parentId").equals("root").toArray()) || [],
+      (await DexieDB.folders.where("parentId").equals("root").toArray()) || [],
+    books: (await DexieDB.books.where("parentId").equals("root").toArray()) || [],
   };
 }

@@ -5,7 +5,7 @@ import FolderItem from "./FolderItem";
 import { useAppDispatch, useAppSelector } from "@hooks";
 import CreateFolderButton from "./CreateFolderButton";
 import { useEffect, useRef, useState } from "react";
-import { setActiveFolder, setFolder, updateFolder } from "@store";
+import { setFolder, updateFolder } from "@store";
 import {
   BreadcrumbItem,
   Breadcrumbs,
@@ -22,28 +22,22 @@ import {
   ModalHeader,
   useDisclosure,
 } from "@heroui/react";
-import db from "@dexieDB";
-import { FolderInterface } from "@interfaces";
+import { BookInterface, FolderInterface } from "@interfaces";
 import { KeyboardEvent } from "@react-types/shared";
+import { FolderModel } from "@models";
 
-async function getBreadcrumbs(id: string): Promise<FolderInterface[]> {
-  if (id === "root") return [];
-
-  const folder = await db.folders.get(id);
-
-  if (!folder) return [];
-
-  if (folder.parentId === "root") return [folder];
-
-  const parentFolder = await db.folders.get(folder.parentId);
-
-  if (!parentFolder) return [folder];
-
-  return [...(await getBreadcrumbs(parentFolder.id)), folder];
-}
+const books: BookInterface[] = Array(5).fill(null).map((_, index) => ({
+  id: `book-${index + 1}`,
+  title: "Física para todos",
+  imageUrl: "/1.jpg",
+  author: "Albert Einstein",
+  category: "Física",
+  likes: 145,
+  downloadUrl: `/download/${index + 1}`, // Ejemplo de URL de descarga
+}));
 
 export default function FilesPanel({ parentId }: { parentId: string }) {
-  const { folders, books, id } = useAppSelector((state) => state.folder);
+  const { folders, id } = useAppSelector((state) => state.folder);
   const {
     id: activeFolderId,
     name: activeFolderName,
@@ -53,12 +47,11 @@ export default function FilesPanel({ parentId }: { parentId: string }) {
   const [breadcrumbs, setBreadcrumbs] = useState<FolderInterface[]>([]);
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const [inputValue, setInputValue] = useState<string>("");
-  const inputRef = useRef(null);
 
   useEffect(() => {
     (async () => {
       if (parentId === "root") return setBreadcrumbs([]);
-      const breadcrumbs = await getBreadcrumbs(id);
+      const breadcrumbs = await FolderModel.getBreadcrumbs(id);
       setBreadcrumbs(breadcrumbs);
     })();
   }, [id]);
@@ -122,6 +115,7 @@ export default function FilesPanel({ parentId }: { parentId: string }) {
             </BreadcrumbItem>
             {breadcrumbs.map((folder) => (
               <BreadcrumbItem
+                
                 key={folder.id}
                 href={`/saved-books/${folder.id}`}
               >
@@ -146,7 +140,7 @@ export default function FilesPanel({ parentId }: { parentId: string }) {
           <h3 className="font-medium text-blue-night text-xl">Tus libros</h3>
           <div className="flex flex-wrap gap-4 mt-8">
             {books.map((book, i) => (
-              <BookItem key={i} {...book} isSaved={true} />
+              <BookItem key={i} book={book} isSaved={true} />
             ))}
           </div>
         </section>
@@ -177,7 +171,6 @@ export default function FilesPanel({ parentId }: { parentId: string }) {
                   </ModalHeader>
                   <ModalBody>
                     <Input
-                      ref={inputRef}
                       label="Nombre de la carpeta"
                       placeholder="Carpeta 1"
                       type="text"

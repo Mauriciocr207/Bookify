@@ -19,7 +19,7 @@ const MAX_LENGTH_NAME = 14;
 
 interface Props {
   folder: FolderInterface;
-  onOpenModal: (folderName: string) => void;
+  onOpenModal: () => void;
 }
 
 export default function FolderItem({ folder, onOpenModal }: Props) {
@@ -35,7 +35,7 @@ export default function FolderItem({ folder, onOpenModal }: Props) {
   };
 
   const handleEditFolder = () => {
-    onOpenModal(folder.name);
+    onOpenModal();
   };
 
   const handleDeleteFolder = () => {

@@ -1,4 +1,6 @@
 import AddIcon from "./AddIcon";
+import AddFolderIcon from "./AddFolderIcon"
+import ArrowRightIcon from "./ArrowRightIcon";
 import BookIcon from "./BookIcon";
 import BookifyIcon from "./BookifyIcon";
 import BookmarkIcon from "./BookmarkIcon";
@@ -14,6 +16,8 @@ import SunIcon from "./SunIcon";
 
 export {
   AddIcon,
+  AddFolderIcon,
+  ArrowRightIcon,
   BookIcon,
   BookifyIcon,
   BookmarkIcon,
@@ -25,5 +29,5 @@ export {
   HeartIcon,
   SearchIcon,
   PapersIcon,
-  SunIcon
+  SunIcon,  
 };

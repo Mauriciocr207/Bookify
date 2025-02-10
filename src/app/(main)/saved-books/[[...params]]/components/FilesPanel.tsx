@@ -4,7 +4,7 @@ import { BookItem } from "@components/common";
 import FolderItem from "./FolderItem";
 import { useAppDispatch, useAppSelector } from "@hooks";
 import CreateFolderButton from "./CreateFolderButton";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { setFolder, updateFolder } from "@store";
 import {
   BreadcrumbItem,
@@ -54,17 +54,17 @@ export default function FilesPanel({ parentId }: { parentId: string }) {
       const breadcrumbs = await FolderModel.getBreadcrumbs(id);
       setBreadcrumbs(breadcrumbs);
     })();
-  }, [id]);
+  }, [id, parentId]);
 
   useEffect(() => {
     (async () => {
       await dispatch(setFolder(parentId));
     })();
-  }, [parentId]);
+  }, [parentId, dispatch]);
 
   useEffect(() => {
     setInputValue(activeFolderName);
-  }, [activeFolderId]);
+  }, [activeFolderId, activeFolderName]);
 
   const handleEditFolder = () => {
     dispatch(

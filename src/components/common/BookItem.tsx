@@ -37,7 +37,7 @@ export default function BookItem({ book, isSaved = false }: Props) {
   } = useIconAnimate(ANIMATE_CONFIG);
   const {
     scope: heartScope,
-    upAnimate: upAnimateHeart,
+    // upAnimate: upAnimateHeart,
     downAnimate: downAnimateHeart,
   } = useIconAnimate(ANIMATE_CONFIG);
   const {
@@ -55,7 +55,7 @@ export default function BookItem({ book, isSaved = false }: Props) {
     disclosureHook.onOpen();
   }
 
-  function onSaveBook(savedId: string) {
+  function onSaveBook() {
     setBookSaved(true);
     upAnimateBookmark();
   }

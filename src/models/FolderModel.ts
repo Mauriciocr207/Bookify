@@ -33,4 +33,6 @@ class FolderModel {
   }
 }
 
-export default new FolderModel(db);
+const folderModel = new FolderModel(db);
+
+export default folderModel;

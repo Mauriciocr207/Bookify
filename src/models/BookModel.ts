@@ -17,6 +17,6 @@ class BookModel {
   }
 }
 
-export default new BookModel(db);
+const indexedDatabase = new BookModel(db);
 
-
+export default indexedDatabase;

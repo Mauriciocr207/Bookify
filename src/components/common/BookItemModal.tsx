@@ -21,6 +21,10 @@ import { BookModel, FolderModel } from "@models";
 import { useEffect, useState } from "react";
 import FolderModal from "./FolderModal";
 
+async function getFolders(parentFolderId: string) {
+  return await FolderModel.getFoldersByParentId(parentFolderId);
+}
+
 export default function BookItemModal({
   disclosureHook,
   book,
@@ -41,17 +45,13 @@ export default function BookItemModal({
   const [folders, setFolders] = useState<FolderInterface[]>([]);
   const [breadcrumbs, setBreadcrumbs] = useState<FolderInterface[]>([]);
 
-  async function getFolders() {
-    return await FolderModel.getFoldersByParentId(actualFolderId);
-  }
-
   useEffect(() => {
     (async () => {
       const breadcrumbs =
         actualFolderId === "root"
           ? []
           : await FolderModel.getBreadcrumbs(actualFolderId);
-      const folders = await getFolders();
+      const folders = await getFolders(actualFolderId);
       setFolderId(actualFolderId);
       setFolders(folders);
       setBreadcrumbs(breadcrumbs);
@@ -73,8 +73,8 @@ export default function BookItemModal({
     onDelete();
   }
 
-  async function onSaveFolder(folderId: string) {
-    setFolders(await getFolders());
+  async function onSaveFolder() {
+    setFolders(await getFolders(actualFolderId));
     disclosureFolder.onClose();
   }
 

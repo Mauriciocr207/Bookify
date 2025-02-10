@@ -1,7 +1,7 @@
 import { useAnimate } from "framer-motion";
 import { useEffect, useState } from "react";
 import { randomNumber } from "@utils";
-import { BookIcon, PapersIcon, BookUpIcon } from "@components/icons"
+import { BookIcon, PapersIcon, BookUpIcon } from "@components/icons";
 
 // Constants
 const ICONS = [BookIcon, PapersIcon, BookUpIcon];
@@ -62,7 +62,18 @@ export default function AnimatedIcon({
       setIconPosition(Math.floor(randomNumber(0, ICONS.length - 1)));
       setSize(randomNumber(sizeRange.min, sizeRange.max));
     })();
-  }, [delay, duration]);
+  }, [
+    animate,
+    scope,
+    delay,
+    duration,
+    delayRange.min,
+    delayRange.max,
+    durationRange.min,
+    durationRange.max,
+    sizeRange.min,
+    sizeRange.max,
+  ]);
 
   return (
     <div

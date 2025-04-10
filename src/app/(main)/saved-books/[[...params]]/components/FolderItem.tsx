@@ -1,5 +1,6 @@
 "use client";
 
+import { FolderModal } from "@components/common";
 import { DotsIcon, FolderIcon } from "@components/icons";
 import { ROUTES } from "@constants";
 import { Button } from "@heroui/button";
@@ -8,22 +9,22 @@ import {
   DropdownItem,
   DropdownMenu,
   DropdownTrigger,
+  useDisclosure,
 } from "@heroui/react";
-import { useAppDispatch } from "@hooks";
 import { FolderInterface } from "@interfaces";
-import { deleteFolder, setActiveFolder } from "@store";
+import { FolderModel } from "@models";
 import { useRouter } from "next/navigation";
-// import { setFolder } from "@store";
 
 const MAX_LENGTH_NAME = 14;
 
 interface Props {
   folder: FolderInterface;
-  onOpenModal: () => void;
+  onEditFolder: (folderId: string) => void;
+  onDeleteFolder: (folderId: string) => void;
 }
 
-export default function FolderItem({ folder, onOpenModal }: Props) {
-    const dispatch = useAppDispatch();
+export default function FolderItem({ folder, onEditFolder, onDeleteFolder }: Props) {
+  const disclosureHook = useDisclosure();
   const router = useRouter();
   const formattedName =
     folder.name.length > MAX_LENGTH_NAME
@@ -35,11 +36,13 @@ export default function FolderItem({ folder, onOpenModal }: Props) {
   };
 
   const handleEditFolder = () => {
-    onOpenModal();
+    disclosureHook.onClose();
+    onEditFolder(folder.id);
   };
 
-  const handleDeleteFolder = () => {
-    dispatch(deleteFolder(folder.id));
+  const handleDeleteFolder = async () => {
+    await FolderModel.deleteFolder(folder.id);
+    onDeleteFolder(folder.id);
   };
 
   return (
@@ -57,11 +60,8 @@ export default function FolderItem({ folder, onOpenModal }: Props) {
             <DotsIcon />
           </Button>
         </DropdownTrigger>
-        <DropdownMenu
-          onAction={() => dispatch(setActiveFolder(folder))}
-          aria-label="Action event example"
-        >
-          <DropdownItem onPress={handleEditFolder} key="edit">
+        <DropdownMenu>
+          <DropdownItem onPress={() => disclosureHook.onOpen()} key="edit">
             Renombrar
           </DropdownItem>
           <DropdownItem
@@ -74,6 +74,12 @@ export default function FolderItem({ folder, onOpenModal }: Props) {
           </DropdownItem>
         </DropdownMenu>
       </Dropdown>
+      <FolderModal
+        editMode={true}
+        folder={folder}
+        disclosureHook={disclosureHook}
+        onEditFolder={handleEditFolder}
+      />
     </div>
   );
 }

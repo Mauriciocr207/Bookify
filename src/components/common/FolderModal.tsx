@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Button,
   Input,
@@ -11,32 +13,52 @@ import {
 import { useState } from "react";
 import { KeyboardEvent } from "@react-types/shared";
 import { FolderModel } from "@models";
+import { FolderInterface } from "@interfaces";
 
 export default function FolderModal({
+  folder,
   disclosureHook,
   parentFolderId,
   onSaveFolder,
-  backdrop,
+  onEditFolder,
+  backdrop = "blur",
+  editMode = false,
 }: {
   disclosureHook: ReturnType<typeof useDisclosure>;
-  parentFolderId: string;
-  onSaveFolder: (folderId: string) => void;
-  backdrop: "transparent" | "opaque" | "blur" | undefined;
+  parentFolderId?: string;
+  onSaveFolder?: (folderId: string) => void;
+  onEditFolder?: (folderId: string) => void;
+  backdrop?: "transparent" | "opaque" | "blur" | undefined;
+  folder?: FolderInterface;
+  editMode?: boolean;
 }) {
   const { isOpen, onOpenChange } = disclosureHook;
   const [inputValue, setInputValue] = useState("");
-  const editingMode = false;
 
-  async function handleEditFolder() {}
+  async function handleEditFolder() {
+    if (folder) {
+      const folderId = await FolderModel.editFolder({
+        name: inputValue,
+        parentId: folder.parentId,
+        id: folder.id,
+      });
+
+      onEditFolder?.(folderId);
+      setInputValue("");
+      disclosureHook.onClose();
+    }
+  }
 
   async function handleCreateFolder() {
-    const folderId = await FolderModel.saveFolder({
-      name: inputValue,
-      parentId: parentFolderId,
-      id: Date.now().toString(),
-    });
-    onSaveFolder(folderId);
-    setInputValue("");
+    if(parentFolderId) {
+        const folderId = await FolderModel.saveFolder({
+          name: inputValue,
+          parentId: parentFolderId,
+          id: Date.now().toString(),
+        });
+        onSaveFolder?.(folderId);
+        setInputValue("");
+    }
   }
 
   return (
@@ -64,7 +86,7 @@ export default function FolderModal({
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={(e: KeyboardEvent) =>
                   e.key === "Enter" &&
-                  (editingMode ? handleEditFolder() : handleCreateFolder())
+                  (editMode ? handleEditFolder() : handleCreateFolder())
                 }
               />
             </ModalBody>
@@ -74,9 +96,9 @@ export default function FolderModal({
               </Button>
               <Button
                 color="primary"
-                onPress={editingMode ? handleEditFolder : handleCreateFolder}
+                onPress={editMode ? handleEditFolder : handleCreateFolder}
               >
-                {editingMode ? "Editar" : "Crear"}
+                {editMode ? "Editar" : "Crear"}
               </Button>
             </ModalFooter>
           </>

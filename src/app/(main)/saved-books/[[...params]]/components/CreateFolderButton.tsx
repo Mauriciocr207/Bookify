@@ -11,31 +11,36 @@ import {
   ModalHeader,
   useDisclosure,
 } from "@heroui/react";
-import { useAppDispatch, useAppSelector } from "@hooks";
+import { FolderModel } from "@models";
 import { KeyboardEvent } from "@react-types/shared";
-import { createFolder } from "@store";
 import { useState } from "react";
 
-export default function CreateFolderButton() {
+export default function CreateFolderButton({
+  parentFolderId,
+  onCreateFolder,
+}: {
+  parentFolderId: string;
+  onCreateFolder: () => void;
+}) {
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const [inputValue, setInputValue] = useState("Carpeta 1");
-  const dispatch = useAppDispatch();
-  const { id: parentId } = useAppSelector((state) => state.folder);
 
-  const handleCreateFolder = () => {
-    dispatch(createFolder({
-        name: inputValue,
-        parentId,
-        id: Date.now().toString(),
-    }));
+  async function handleCreateFolder() {
+    await FolderModel.saveFolder({
+      name: inputValue,
+      parentId: parentFolderId,
+      id: Date.now().toString(),
+    });
     onClose();
-  };
+    onCreateFolder();
+  }
 
-  const handleEnterEvent = (e: KeyboardEvent) => {
-    if(e.key === "Enter") {
+  function handleEnterEvent(e: KeyboardEvent) {
+    if (e.key === "Enter") {
       handleCreateFolder();
     }
-  };
+  }
+
   return (
     <>
       <Button onPress={onOpen} className="bg-blue-night px-12 py-1 rounded-md">
@@ -72,7 +77,10 @@ export default function CreateFolderButton() {
                 <Button color="danger" variant="flat" onPress={onClose}>
                   Cerrar
                 </Button>
-                <Button className="bg-blue text-white" onPress={handleCreateFolder}>
+                <Button
+                  className="bg-blue text-white"
+                  onPress={handleCreateFolder}
+                >
                   Crear
                 </Button>
               </ModalFooter>

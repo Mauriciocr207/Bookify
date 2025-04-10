@@ -1,6 +1,6 @@
 "use client";
 
-import AddIcon from "@components/icons/AddIcon";
+import { AddIcon } from "@components/icons";
 import {
   Button,
   Input,

@@ -5,8 +5,7 @@ import { useTheme } from "@hooks";
 import Link from "next/link";
 import { ROUTES } from "@constants";
 import { usePathname } from "next/navigation";
-import BookifyIcon from "@components/icons/BookifyIcon";
-import SunIcon from "@components/icons/SunIcon";
+import { SunIcon, BookifyIcon } from "@components/icons";
 
 export default function Header() {
   const pathname = usePathname();

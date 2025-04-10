@@ -2,10 +2,8 @@
 
 import { BookItem } from "@components/common";
 import FolderItem from "./FolderItem";
-import { useAppDispatch, useAppSelector } from "@hooks";
 import CreateFolderButton from "./CreateFolderButton";
 import { useEffect, useState } from "react";
-import { setFolder, updateFolder } from "@store";
 import {
   BreadcrumbItem,
   Breadcrumbs,
@@ -14,68 +12,46 @@ import {
   DropdownItem,
   DropdownMenu,
   DropdownTrigger,
-  Input,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  useDisclosure,
 } from "@heroui/react";
-import { BookInterface, FolderInterface } from "@interfaces";
-import { KeyboardEvent } from "@react-types/shared";
+import {
+  BookInterface,
+  FolderInterface,
+  FolderWithFilesInterface,
+} from "@interfaces";
 import { FolderModel } from "@models";
 
-const books: BookInterface[] = Array(5).fill(null).map((_, index) => ({
-  id: `book-${index + 1}`,
-  title: "Física para todos",
-  imageUrl: "/1.jpg",
-  author: "Albert Einstein",
-  category: "Física",
-  likes: 145,
-  downloadUrl: `/download/${index + 1}`, // Ejemplo de URL de descarga
-}));
+const books: BookInterface[] = Array(5)
+  .fill(null)
+  .map((_, index) => ({
+    id: `book-${index + 1}`,
+    title: "Física para todos",
+    imageUrl: "/1.jpg",
+    author: "Albert Einstein",
+    category: "Física",
+    likes: 145,
+    downloadUrl: `/download/${index + 1}`, // Ejemplo de URL de descarga
+  }));
 
 export default function FilesPanel({ parentId }: { parentId: string }) {
-  const { folders, id } = useAppSelector((state) => state.folder);
-  const {
-    id: activeFolderId,
-    name: activeFolderName,
-    parentId: activeFolderParentId,
-  } = useAppSelector((state) => state.activeFolder);
-  const dispatch = useAppDispatch();
+  const [parentFolder, setParentFolder] = useState<FolderWithFilesInterface>();
   const [breadcrumbs, setBreadcrumbs] = useState<FolderInterface[]>([]);
-  const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
-  const [inputValue, setInputValue] = useState<string>("");
 
   useEffect(() => {
     (async () => {
+      setParentFolder(await FolderModel.getFolderWithFiles(parentId));
       if (parentId === "root") return setBreadcrumbs([]);
-      const breadcrumbs = await FolderModel.getBreadcrumbs(id);
+      const breadcrumbs = await FolderModel.getBreadcrumbs(parentId);
       setBreadcrumbs(breadcrumbs);
     })();
-  }, [id, parentId]);
+  }, [parentId]);
 
   useEffect(() => {
-    (async () => {
-      await dispatch(setFolder(parentId));
-    })();
-  }, [parentId, dispatch]);
+    console.log(parentFolder);
+  }, [parentFolder]);
 
-  useEffect(() => {
-    setInputValue(activeFolderName);
-  }, [activeFolderId, activeFolderName]);
-
-  const handleEditFolder = () => {
-    dispatch(
-      updateFolder({
-        id: activeFolderId,
-        name: inputValue,
-        parentId: activeFolderParentId,
-      })
-    );
-    onClose();
-  };
+  async function handleFoldersChange() {
+    setParentFolder(await FolderModel.getFolderWithFiles(parentId));
+  }
 
   return (
     <>
@@ -115,7 +91,6 @@ export default function FilesPanel({ parentId }: { parentId: string }) {
             </BreadcrumbItem>
             {breadcrumbs.map((folder) => (
               <BreadcrumbItem
-                
                 key={folder.id}
                 href={`/saved-books/${folder.id}`}
               >
@@ -133,7 +108,10 @@ export default function FilesPanel({ parentId }: { parentId: string }) {
             </label>
           </div>
         )}
-        <CreateFolderButton />
+        <CreateFolderButton
+          parentFolderId={parentFolder?.id || "root"}
+          onCreateFolder={handleFoldersChange}
+        />
       </section>
       {books?.length > 0 && (
         <section className="mt-11 w-full">
@@ -145,57 +123,23 @@ export default function FilesPanel({ parentId }: { parentId: string }) {
           </div>
         </section>
       )}
-      {folders?.length > 0 && (
+      {parentFolder?.folders && parentFolder?.folders.length > 0 && (
         <>
           <section className="mt-11 w-full">
             <h3 className="font-medium text-blue-night text-xl">
               Tus carpetas
             </h3>
             <div className="flex flex-wrap gap-8 mt-8">
-              {folders.map((folder, i) => (
-                <FolderItem key={i} folder={folder} onOpenModal={onOpen} />
+              {parentFolder?.folders.map((folder, i) => (
+                <FolderItem
+                  key={i}
+                  folder={folder}
+                  onDeleteFolder={handleFoldersChange}
+                  onEditFolder={handleFoldersChange}
+                />
               ))}
             </div>
           </section>
-          <Modal
-            isOpen={isOpen}
-            placement="bottom"
-            onOpenChange={onOpenChange}
-            backdrop="blur"
-          >
-            <ModalContent>
-              {(onClose) => (
-                <>
-                  <ModalHeader className="flex flex-col gap-1">
-                    Nombre de la carpeta
-                  </ModalHeader>
-                  <ModalBody>
-                    <Input
-                      label="Nombre de la carpeta"
-                      placeholder="Carpeta 1"
-                      type="text"
-                      variant="underlined"
-                      autoFocus
-                      defaultValue={inputValue}
-                      name="folderName"
-                      onChange={(e) => setInputValue(e.target.value)}
-                      onKeyDown={(e: KeyboardEvent) =>
-                        e.key === "Enter" && handleEditFolder()
-                      }
-                    />
-                  </ModalBody>
-                  <ModalFooter>
-                    <Button color="danger" variant="flat" onPress={onClose}>
-                      Cerrar
-                    </Button>
-                    <Button color="primary" onPress={handleEditFolder}>
-                      Crear
-                    </Button>
-                  </ModalFooter>
-                </>
-              )}
-            </ModalContent>
-          </Modal>
         </>
       )}
     </>

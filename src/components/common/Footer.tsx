@@ -1,5 +1,4 @@
 import GitHubIcon from "@components/icons/GitHubIcon";
-import Link from "next/link";
 
 export default function Footer() {
   return (
@@ -9,13 +8,15 @@ export default function Footer() {
         Bookify es una plataforma creada por y para estudiantes, pensada para
         facilitar el acceso al conocimiento académico.
       </p>
-      <Link
+      <a
         href="https://github.com/Mauriciocr207/Bookify"
+        target="_blank"
+        rel="noopener noreferrer"
         className="flex gap-2 justify-center items-center"
       >
         <GitHubIcon />
         <p>Colabora</p>
-      </Link>
+      </a>
     </footer>
   );
 }

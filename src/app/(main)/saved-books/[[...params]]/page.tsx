@@ -6,15 +6,10 @@ export const metadata: Metadata = {
   description: "Organiza tus libros aquí",
 };
 
-export default async function Page({
-  params,
-}: {
-  params: Promise<{ params: string[] } | undefined>;
-}) {
-  const parentId = (await params)?.params?.[0] || "root";
+export default async function Page() {
   return (
     <main>
-      <FilesPanel parentId={parentId} />
+      <FilesPanel />
     </main>
   );
 }

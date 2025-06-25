@@ -2,7 +2,7 @@
 
 import { FolderModal } from "@components/common";
 import { DotsIcon, FolderIcon } from "@components/icons";
-import { ROUTES } from "@constants";
+import { useFolderContext } from "@context";
 import { Button } from "@heroui/button";
 import {
   Dropdown,
@@ -13,36 +13,34 @@ import {
 } from "@heroui/react";
 import { FolderInterface } from "@interfaces";
 import { FolderModel } from "@models";
-import { useRouter } from "next/navigation";
 
 const MAX_LENGTH_NAME = 14;
 
 interface Props {
   folder: FolderInterface;
-  onEditFolder: (folderId: string) => void;
-  onDeleteFolder: (folderId: string) => void;
 }
 
-export default function FolderItem({ folder, onEditFolder, onDeleteFolder }: Props) {
+export default function FolderItem({ folder }: Props) {
+    const { currentFolderId, setFolder } = useFolderContext();
   const disclosureHook = useDisclosure();
-  const router = useRouter();
   const formattedName =
     folder.name.length > MAX_LENGTH_NAME
       ? `${folder.name.substring(0, MAX_LENGTH_NAME)}...`
       : folder.name;
 
   const handleClick = () => {
-    router.push(`${ROUTES.SAVED_BOOKS}/${folder.id}`);
+    setFolder(folder.id);
+    console.log('editando');
   };
 
   const handleEditFolder = () => {
     disclosureHook.onClose();
-    onEditFolder(folder.id);
+    setFolder(currentFolderId);
   };
 
   const handleDeleteFolder = async () => {
     await FolderModel.deleteFolder(folder.id);
-    onDeleteFolder(folder.id);
+    setFolder(currentFolderId);
   };
 
   return (
@@ -79,6 +77,7 @@ export default function FolderItem({ folder, onEditFolder, onDeleteFolder }: Pro
         folder={folder}
         disclosureHook={disclosureHook}
         onEditFolder={handleEditFolder}
+        value={folder.name}
       />
     </div>
   );

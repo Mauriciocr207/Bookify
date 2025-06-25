@@ -1,0 +1,13 @@
+.filepond--wrapper {
+    @apply mt-3
+}
+
+.filepond--root,
+.filepond--root .filepond--drop-label {
+  @apply h-[300px]
+}
+
+
+.filepond--panel-root {
+    @apply !bg-white border-[2px] border-dashed border-gray-2 !rounded-xl
+}

@@ -1,6 +1,7 @@
 "use client";
 
 import { AddIcon } from "@components/icons";
+import { useFolderContext } from "@context";
 import {
   Button,
   Input,
@@ -15,24 +16,20 @@ import { FolderModel } from "@models";
 import { KeyboardEvent } from "@react-types/shared";
 import { useState } from "react";
 
-export default function CreateFolderButton({
-  parentFolderId,
-  onCreateFolder,
-}: {
-  parentFolderId: string;
-  onCreateFolder: () => void;
-}) {
+export default function CreateFolderButton() {
+  const { currentFolderId, setFolder } = useFolderContext();
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const [inputValue, setInputValue] = useState("Carpeta 1");
 
   async function handleCreateFolder() {
     await FolderModel.saveFolder({
       name: inputValue,
-      parentId: parentFolderId,
+      parentId: currentFolderId,
       id: Date.now().toString(),
     });
+
+    setFolder(currentFolderId);
     onClose();
-    onCreateFolder();
   }
 
   function handleEnterEvent(e: KeyboardEvent) {

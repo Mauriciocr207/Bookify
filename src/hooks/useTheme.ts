@@ -1,11 +1,9 @@
+import { isClientSide } from "@utils";
 import { useEffect, useState } from "react";
 
 export default function useTheme() {
-  const isClientSide =
-    typeof window !== "undefined" && typeof localStorage !== "undefined";
-
-  const [theme, setTheme] = useState(() => {
-    if (isClientSide) {
+  const [theme, setTheme] = useState<"dark" | "light">(() => {
+    if (isClientSide()) {
       return (
         localStorage?.theme ||
         (window.matchMedia("(prefers-color-scheme: dark)").matches && "dark") ||
@@ -18,11 +16,11 @@ export default function useTheme() {
   const isDarkTheme = () => theme === "light";
 
   useEffect(() => {
-    if (isClientSide) {
+    if (isClientSide()) {
       localStorage.theme = theme;
       document.documentElement.classList.toggle("dark", theme === "dark");
     }
-  }, [theme, isClientSide]);
+  }, [theme]);
 
   return { theme, setTheme, isDarkTheme };
 }

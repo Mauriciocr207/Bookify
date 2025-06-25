@@ -23,6 +23,7 @@ export default function FolderModal({
   onEditFolder,
   backdrop = "blur",
   editMode = false,
+  value = "",
 }: {
   disclosureHook: ReturnType<typeof useDisclosure>;
   parentFolderId?: string;
@@ -31,9 +32,11 @@ export default function FolderModal({
   backdrop?: "transparent" | "opaque" | "blur" | undefined;
   folder?: FolderInterface;
   editMode?: boolean;
+  value?: string;
 }) {
+    console.log(value);
   const { isOpen, onOpenChange } = disclosureHook;
-  const [inputValue, setInputValue] = useState("");
+  const [inputValue, setInputValue] = useState(value);
 
   async function handleEditFolder() {
     if (folder) {
@@ -44,7 +47,7 @@ export default function FolderModal({
       });
 
       onEditFolder?.(folderId);
-      setInputValue("");
+      setInputValue(inputValue);
       disclosureHook.onClose();
     }
   }

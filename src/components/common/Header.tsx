@@ -44,7 +44,7 @@ export default function Header() {
           isIconOnly
           variant="light"
           onPress={() =>
-            setTheme((theme: string) => (theme === "light" ? "dark" : "light"))
+            setTheme((theme) => theme === "dark" ? "light" : "dark")
           }
         >
           <SunIcon />

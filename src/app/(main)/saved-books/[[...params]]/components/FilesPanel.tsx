@@ -3,7 +3,6 @@
 import { BookItem } from "@components/common";
 import FolderItem from "./FolderItem";
 import CreateFolderButton from "./CreateFolderButton";
-import { useEffect, useState } from "react";
 import {
   BreadcrumbItem,
   Breadcrumbs,
@@ -12,13 +11,11 @@ import {
   DropdownItem,
   DropdownMenu,
   DropdownTrigger,
+  Skeleton,
 } from "@heroui/react";
-import {
-  BookInterface,
-  FolderInterface,
-  FolderWithFilesInterface,
-} from "@interfaces";
-import { FolderModel } from "@models";
+import { BookInterface } from "@interfaces";
+import { useFolderContext } from "@context";
+import React from "react";
 
 const books: BookInterface[] = Array(5)
   .fill(null)
@@ -32,26 +29,9 @@ const books: BookInterface[] = Array(5)
     downloadUrl: `/download/${index + 1}`, // Ejemplo de URL de descarga
   }));
 
-export default function FilesPanel({ parentId }: { parentId: string }) {
-  const [parentFolder, setParentFolder] = useState<FolderWithFilesInterface>();
-  const [breadcrumbs, setBreadcrumbs] = useState<FolderInterface[]>([]);
-
-  useEffect(() => {
-    (async () => {
-      setParentFolder(await FolderModel.getFolderWithFiles(parentId));
-      if (parentId === "root") return setBreadcrumbs([]);
-      const breadcrumbs = await FolderModel.getBreadcrumbs(parentId);
-      setBreadcrumbs(breadcrumbs);
-    })();
-  }, [parentId]);
-
-  useEffect(() => {
-    console.log(parentFolder);
-  }, [parentFolder]);
-
-  async function handleFoldersChange() {
-    setParentFolder(await FolderModel.getFolderWithFiles(parentId));
-  }
+export default function FilesPanel() {
+  const { currentFolder, breadcrumbs, setFolder, isLoading } =
+    useFolderContext();
 
   return (
     <>
@@ -76,7 +56,7 @@ export default function FilesPanel({ parentId }: { parentId: string }) {
                   </DropdownTrigger>
                   <DropdownMenu aria-label="Routes">
                     {items.map((item, id) => (
-                      <DropdownItem key={id} href={item.href}>
+                      <DropdownItem key={id} onPress={item.onPress}>
                         {item.children}
                       </DropdownItem>
                     ))}
@@ -86,13 +66,14 @@ export default function FilesPanel({ parentId }: { parentId: string }) {
               </div>
             )}
           >
-            <BreadcrumbItem key={"/saved-books"} href="/saved-books">
+            <BreadcrumbItem key={"root"} onPress={() => setFolder("root")}>
               ~
             </BreadcrumbItem>
             {breadcrumbs.map((folder) => (
               <BreadcrumbItem
                 key={folder.id}
-                href={`/saved-books/${folder.id}`}
+                data-folderid={folder.id}
+                onPress={() => setFolder(folder.id)}
               >
                 {folder.name}
               </BreadcrumbItem>
@@ -108,10 +89,7 @@ export default function FilesPanel({ parentId }: { parentId: string }) {
             </label>
           </div>
         )}
-        <CreateFolderButton
-          parentFolderId={parentFolder?.id || "root"}
-          onCreateFolder={handleFoldersChange}
-        />
+        <CreateFolderButton />
       </section>
       {books?.length > 0 && (
         <section className="mt-11 w-full">
@@ -123,25 +101,20 @@ export default function FilesPanel({ parentId }: { parentId: string }) {
           </div>
         </section>
       )}
-      {parentFolder?.folders && parentFolder?.folders.length > 0 && (
-        <>
-          <section className="mt-11 w-full">
-            <h3 className="font-medium text-blue-night text-xl">
-              Tus carpetas
-            </h3>
-            <div className="flex flex-wrap gap-8 mt-8">
-              {parentFolder?.folders.map((folder, i) => (
-                <FolderItem
-                  key={i}
-                  folder={folder}
-                  onDeleteFolder={handleFoldersChange}
-                  onEditFolder={handleFoldersChange}
-                />
-              ))}
-            </div>
-          </section>
-        </>
-      )}
+
+      <section className="mt-11 w-full">
+        <h3 className="font-medium text-blue-night text-xl">Tus carpetas</h3>
+        <div className="flex flex-wrap gap-8 mt-8">
+          {!isLoading &&
+            currentFolder.folders?.map((folder, i) => (
+              <FolderItem key={i} folder={folder} />
+            ))}
+          {isLoading &&
+            Array.from({ length: 5 }).map((_, i) => (
+              <Skeleton className="rounded-xl w-[190px] h-12" key={i} />
+            ))}
+        </div>
+      </section>
     </>
   );
 }

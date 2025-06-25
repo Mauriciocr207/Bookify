@@ -1,12 +1,12 @@
 "use client";
 
+import { FolderContextProvider } from "@context";
 import HeroProvider from "./HeroUIProvider";
-import StoreProvider from "./StoreProvider";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (
     <HeroProvider>
-      <StoreProvider>{children}</StoreProvider>
+      <FolderContextProvider>{children}</FolderContextProvider>
     </HeroProvider>
   );
 }

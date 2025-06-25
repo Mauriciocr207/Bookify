@@ -1,0 +1,6 @@
+{
+  // for rules of tailwind declarations, useful in v4
+  "files.associations": {
+    "*.css": "tailwindcss"
+  },
+}

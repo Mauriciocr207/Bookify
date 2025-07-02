@@ -1,17 +1,23 @@
-**⚠️ Note:**  
-Click on the **Preview** tab at the top right to correctly view this template.
+# 🚀 Feature Request: [Descriptive title of the feature]
 
-# Pull Request Templates  
-Select a template
+## 📝 Description
+Clearly describe the new functionality or improvement that this Pull Request introduces to the project.
 
-| **Template**            | **Description**                                         |
-|-------------------------|--------------------------------------------------------|
-| [🚀 Feature Template](?expand=1&template=feature_template.md) | Use this template if your PR introduces new features or improvements. |
-| [🐛 Bugfix Template](?expand=1&template=bugfix_template.md)   | Use this template if your PR fixes an issue or bug.     |
+- What problem does this functionality solve?
+- How does it improve the user experience or the system?
+
+## ✅ Acceptance Criteria
+- [ ] Functionality implemented correctly.
+- [ ] Corresponding tests are updated and pass successfully.
+- [ ] Documentation updated with the changes.
+
+## 🔗 Additional Resources
+Include any relevant links such as documentation, designs, mockups, or issue tracker tickets.
+
+## 📷 Screenshots or video (if applicable)
+Add images or GIFs that show the new functionality in action.
 
 ---
 
-## How to use  
-1. Click on the corresponding link in the table above.  
-2. The selected template will automatically load in the Pull Request description.  
-3. Complete the required details in the template.
+### 📌 Additional Notes
+Any other important details the team should consider.

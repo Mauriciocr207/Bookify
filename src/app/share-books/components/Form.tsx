@@ -116,7 +116,7 @@ export default function Form() {
             name="key-words"
             placeholder="Escribe tus tags aquí"
             aria-label="key-words"
-            onChangeTags={(tags) => console.log(tags)}
+            // onChangeTags={(tags) => console.log(tags)}
           />
         </div>
       </div>

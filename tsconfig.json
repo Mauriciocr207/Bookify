@@ -24,6 +24,8 @@
       "@context": ["./src/context/index.ts"],
       "@hooks": ["./src/hooks/index.ts"],
       "@interfaces": ["./src/interfaces/index.ts"],
+      "@libs": ["./src/libs/index.ts"],
+      "@middlewares": ["./src/middlewares/index.ts"],
       "@models": ["./src/models/index.ts"],
       "@providers": ["./src/providers/index.tsx"],
       "@styles": ["./src/styles/index.css"],

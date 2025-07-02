@@ -1,5 +1,4 @@
-import BookModel from "./BookModel";
-import DexieDB from "./DexieDB";
-import FolderModel from "./FolderModel";
-
-export { BookModel, FolderModel, DexieDB };
+export { default as BookModel } from "./BookModel";
+export { default as DexieDB } from "./DexieDB";
+export { default as FolderModel } from "./FolderModel";
+export { default as FileUploader } from "./FileUploader";

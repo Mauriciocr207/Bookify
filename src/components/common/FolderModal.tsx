@@ -34,7 +34,6 @@ export default function FolderModal({
   editMode?: boolean;
   value?: string;
 }) {
-    console.log(value);
   const { isOpen, onOpenChange } = disclosureHook;
   const [inputValue, setInputValue] = useState(value);
 

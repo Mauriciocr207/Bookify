@@ -5,8 +5,7 @@ import { useFollowPointer } from "../hooks/useFollowPointer";
 import ArrowDownIcon from "@components/icons/ArrowDownIcon";
 import { CloudIcon, GoogleDriveIcon } from "@components/icons";
 import { Button } from "@heroui/react";
-import { IoClose } from "react-icons/io5";
-import { HiOutlineUpload } from "react-icons/hi";
+import FileCard from "./FileCard";
 
 type onDropEvent = (
   acceptedFiles: File[],
@@ -106,10 +105,8 @@ export default function DragAndDrop() {
               initial={{ opacity: 0, transform: "translateY(+70px)" }}
               animate={{ opacity: 1, transform: "translateY(0px)" }}
               exit={{ opacity: 0, transform: "translateY(-70px)" }}
-              className={`${
-                isDragActive ? "pointer-events-none" : ""
-              } flex flex-col items-center justify-center absolute`}
-              key={`content-${isDragActive}`}
+              className={`flex flex-col items-center justify-center absolute`}
+              key={"content"}
             >
               <CloudIcon />
               <p className="text-sm">
@@ -135,38 +132,7 @@ export default function DragAndDrop() {
         </AnimatePresence>
         <AnimatePresence>
           {file && !isDragActive && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0 }}
-              className="bg-gray p-4 rounded-lg overflow-hidden w-[400px] asbolute"
-              key={`file-box-${isDragActive}`}
-            >
-              <div className="flex justify-between gap-4">
-                <Button
-                  isIconOnly
-                  onPress={onDeleteFile}
-                  variant="ghost"
-                  className="border-white text-white rounded-full"
-                >
-                  <IoClose className="w-5 h-5" />
-                </Button>
-                <div className="text-white font-semibold flex flex-col justify-center text-tiny w-full overflow-hidden text-nowrap">
-                  <p className="w-full truncate">{file.name}</p>
-                  <span className="text-[9px]">
-                    {(file.size / 1024).toFixed(2)} KB
-                  </span>
-                </div>
-                <Button
-                  isIconOnly
-                  onPress={() => console.log("subiendo")}
-                  variant="ghost"
-                  className="border-white text-white rounded-full"
-                >
-                  <HiOutlineUpload className="w-5 h-5" />
-                </Button>
-              </div>
-            </motion.div>
+            <FileCard file={file} onDeleteFile={onDeleteFile} />
           )}
         </AnimatePresence>
       </div>

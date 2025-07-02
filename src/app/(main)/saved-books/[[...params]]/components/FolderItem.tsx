@@ -30,7 +30,6 @@ export default function FolderItem({ folder }: Props) {
 
   const handleClick = () => {
     setFolder(folder.id);
-    console.log('editando');
   };
 
   const handleEditFolder = () => {

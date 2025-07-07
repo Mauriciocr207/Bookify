@@ -103,7 +103,7 @@ export default function InputTag(props: InputTagProps) {
 
   useEffect(() => {
     props.onChangeTags?.(tags);
-  }, [tags])
+  }, [tags, props])
 
   const innerWrapper = useMemo(
     () => (

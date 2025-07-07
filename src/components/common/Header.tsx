@@ -3,7 +3,7 @@
 import { Button } from "@heroui/button";
 import { useTheme } from "@hooks";
 import Link from "next/link";
-import { ROUTES } from "@constants";
+import { ROUTES } from "@config";
 import { usePathname } from "next/navigation";
 import { SunIcon, BookifyIcon } from "@components/icons";
 
@@ -15,14 +15,14 @@ export default function Header() {
   return (
     <header className="px-4">
       <nav className="container flex justify-between items-center py-11">
-        <Link href={ROUTES.HOME}>
+        <Link href={ROUTES.home}>
           <BookifyIcon />
         </Link>
         <div className="flex justify-between items-center gap-11 font-bold">
           <Link
-            href={ROUTES.SAVED_BOOKS}
+            href={ROUTES.saved_books}
             className={`${
-              isActiveLink(ROUTES.SAVED_BOOKS)
+              isActiveLink(ROUTES.saved_books)
                 ? "text-blue dark:text-blue-light-2"
                 : "hover:text-blue-light text-gray dark:text-gray-light-3 dark:hover:text-blue-light-2"
             }`}
@@ -30,9 +30,9 @@ export default function Header() {
             Guardados
           </Link>
           <Link
-            href={ROUTES.SHARE_BOOKS}
+            href={ROUTES.share_books}
             className={`${
-              isActiveLink(ROUTES.SHARE_BOOKS)
+              isActiveLink(ROUTES.share_books)
                 ? "text-blue dark:text-blue-light-2"
                 : "hover:text-blue-light text-gray dark:text-gray-light-3 dark:hover:text-blue-light-2"
             }`}

@@ -1,26 +1,34 @@
-interface BaseApi {
-    error?: string
+interface BaseRequest {
+  uuid: string;
 }
 
-export interface UploadFileResponse extends BaseApi {
-    url?: string
+interface BaseResponse {
+  error?: string;
 }
 
-export interface UploadMultipartFileResponse extends BaseApi {
-    urls?: string[]
-    UploadId?: string
-    Key?: string
+export interface UploadFileResponse extends BaseResponse {
+  url?: string;
+  uuid?: string;
+}
+
+export interface UploadMultipartFileResponse extends BaseResponse {
+  urls?: string[];
+  uploadId?: string;
+  uuid?: string;
 }
 
 export interface UploadPart {
-    ETag: string,
-    PartNumber: number
+  ETag: string;
+  PartNumber: number;
 }
 
-export interface UploadMultipartFileCompleteRequest {
-  UploadId: string
-  Key: string
+export interface UploadMultipartFileCompleteRequest extends BaseRequest {
+  uploadId: string;
   parts: UploadPart[];
 }
 
+export interface UploadMultipartFileCancelRequest extends BaseRequest {
+  uploadId: string;
+}
 
+export type UploadFileDeleteRequest = BaseRequest;

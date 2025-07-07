@@ -1,9 +1,10 @@
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { UploadFileResponse } from "@interfaces";
-import { FileUploadConfig, R2Client } from "@libs";
+import { FileUploadConfig } from "@config";
 import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "node:crypto";
+import R2Client from "@server/cloudflare/R2Client";
 
 const { R2_BUCKET_NAME } = process.env;
 const { maxFileSize } = FileUploadConfig;
@@ -21,14 +22,18 @@ export async function POST(
       );
     }
 
-    const command = new PutObjectCommand({
+    const Key = randomUUID();
+
+    const putObjectCommand = new PutObjectCommand({
       Bucket: R2_BUCKET_NAME,
-      Key: randomUUID(),
+      Key,
     });
 
-    const url = await getSignedUrl(R2Client, command, { expiresIn: 60 });
+    const url = await getSignedUrl(R2Client, putObjectCommand, {
+      expiresIn: 60,
+    });
 
-    return NextResponse.json({ url }, { status: 200 });
+    return NextResponse.json({ url, uuid: Key }, { status: 200 });
   } catch {
     return NextResponse.json(
       { error: "Internal Server Error" },

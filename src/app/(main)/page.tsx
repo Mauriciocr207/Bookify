@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { Button } from "@heroui/button";
 import { BookInterface } from "@interfaces";
 import { BookPagination, Filter, InputSearch } from "./components";
-import { ROUTES } from "@constants";
+import { ROUTES } from "@config";
 import Link from "next/link";
 import { BookItem } from "@components/common";
 
@@ -48,14 +48,14 @@ export default function Home() {
         <div className="flex gap-4">
           <Button
             as={Link}
-            href={ROUTES.SAVED_BOOKS}
+            href={ROUTES.saved_books}
             className="bg-blue-night text-white dark:bg-blue-light px-8 py-2 rounded-md font-bold"
           >
             Explora
           </Button>
           <Button
             as={Link}
-            href={ROUTES.SHARE_BOOKS}
+            href={ROUTES.share_books}
             className="bg-white text-blue-night border-blue-night dark:text-blue-light dark:border-blue-ligth border-1 border-solid px-8 py-2 rounded-md font-bold"
           >
             Colabora

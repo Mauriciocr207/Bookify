@@ -3,8 +3,9 @@ import {
   UploadPartCommand,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { FileUploadConfig } from "@config";
 import { UploadMultipartFileResponse } from "@interfaces";
-import { FileUploadConfig, R2Client } from "@libs";
+import R2Client from "@server/cloudflare/R2Client";
 import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "node:crypto";
 
@@ -51,7 +52,10 @@ export async function POST(
 
     const urls = await Promise.all(getSignedUrlsRequests);
 
-    return NextResponse.json({ urls, UploadId, Key }, { status: 200 });
+    return NextResponse.json(
+      { urls, uploadId: UploadId, uuid: Key },
+      { status: 200 }
+    );
   } catch {
     return NextResponse.json(
       { error: "Internal Server Error" },

@@ -2,33 +2,39 @@ import { FileUploadConfig } from "@config";
 import { Button } from "@heroui/react";
 import { FileUploader } from "@models";
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { FaCheck } from "react-icons/fa";
 import { HiOutlineUpload } from "react-icons/hi";
 import { IoClose } from "react-icons/io5";
 import CircleProgressBar from "./CircleProgressBar";
+import ImageFromPdf from "./ImageFromPdf";
 
 interface FileCardProps {
   file: File;
   onDeleteFile: () => void;
+  handleUpdateUUID: (uuid: string | null) => void;
 }
 
 const { maxFileSize } = FileUploadConfig;
 
-export default function FileCard({ file, onDeleteFile }: FileCardProps) {
+export default function FileCard({
+  file,
+  onDeleteFile,
+  handleUpdateUUID,
+}: FileCardProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isUploaded, setIsUploaded] = useState(false);
   const [loader, setLoader] = useState(0);
   const [hoverCancelUpload, setHoverCancelUpload] = useState(false);
   const fileUploader = useRef(new FileUploader());
+  const [height, setHeight] = useState<0 | 223>(0);
 
   const handleProcessFile = async () => {
     try {
       setIsLoading(true);
 
       if (file.size <= maxFileSize) {
-        const uuid = await fileUploader.current.uploadFile(file, setLoader);
-        console.log(uuid);
+        await fileUploader.current.uploadFile(file, setLoader);
       }
 
       if (file.size > maxFileSize) {
@@ -37,19 +43,25 @@ export default function FileCard({ file, onDeleteFile }: FileCardProps) {
 
       setIsLoading(false);
       setIsUploaded(true);
+
+      const uuid = fileUploader.current.uuid;
+      if (uuid) handleUpdateUUID(uuid);
     } catch (error) {
       setIsLoading(false);
       setLoader(0);
+      handleUpdateUUID(null);
       console.log(error);
     }
   };
 
   const handleDeleteFile = () => {
     fileUploader.current.deleteFile();
+    handleUpdateUUID(null);
     onDeleteFile();
   };
 
   const handleCancelUpload = () => {
+    handleUpdateUUID(null);
     fileUploader.current.abortUploadFile();
   };
 
@@ -66,17 +78,24 @@ export default function FileCard({ file, onDeleteFile }: FileCardProps) {
     return `${fileSize} Bytes`;
   }, [file]);
 
-  useEffect(() => {}, [loader]);
-
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0 }}
-      className="bg-gray p-4 rounded-lg overflow-hidden w-[400px] asbolute"
+      initial={{ opacity: 0, scale: 0.5 }}
+      animate={{ opacity: 1, scale: 1, transition: { duration: 0.25 } }}
+      exit={{ opacity: 0, scale: 0.5, transition: { duration: 0.25 } }}
+      className={`rounded-lg overflow-hidden w-[400px] relative transition-height border ${
+        height === 0 ? "h-[73px]" : "h-[223px]"
+      }`}
+      style={{ transitionDuration: "300ms" }}
       key={`file-box`}
     >
-      <div className="flex justify-between">
+      <ImageFromPdf
+        file={file}
+        height={height}
+        onBeginConvertion={() => setHeight(0)}
+        onFinishConvertion={() => setHeight(223)}
+      />
+      <motion.div className="flex justify-between p-4 h-[73px] bg-gray/90 absolute w-full bottom-0">
         <AnimatePresence initial={false}>
           {!isLoading && (
             <motion.div
@@ -101,7 +120,12 @@ export default function FileCard({ file, onDeleteFile }: FileCardProps) {
         </AnimatePresence>
         <div className="text-white font-semibold flex flex-col justify-center text-tiny w-full overflow-hidden text-nowrap mr-4">
           <p className="w-full truncate">{file.name}</p>
-          <span className="text-[9px]">{formattedFileSize}</span>
+          <span
+            className="text-[9px]"
+            onClick={() => setHeight(height === 0 ? 223 : 0)}
+          >
+            {formattedFileSize}
+          </span>
         </div>
         <div className="w-[45px] h-[41px]">
           <AnimatePresence initial={false}>
@@ -175,7 +199,7 @@ export default function FileCard({ file, onDeleteFile }: FileCardProps) {
             )}
           </AnimatePresence>
         </div>
-      </div>
+      </motion.div>
     </motion.div>
   );
 }

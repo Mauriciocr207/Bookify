@@ -6,11 +6,16 @@ import Link from "next/link";
 import { ROUTES } from "@config";
 import { usePathname } from "next/navigation";
 import { SunIcon, BookifyIcon } from "@components/icons";
+import { useEffect } from "react";
 
 export default function Header() {
   const pathname = usePathname();
   const isActiveLink = (url: string): boolean => pathname === url;
   const { setTheme } = useTheme();
+
+  useEffect(() => {
+    localStorage.getItem("");
+  }, []);
 
   return (
     <header className="px-4">

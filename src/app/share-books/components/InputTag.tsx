@@ -6,6 +6,7 @@ import {
   useMemo,
   useState,
 } from "react";
+import { useFormContext } from "react-hook-form";
 
 const styles = {
   label: "text-black/50 dark:text-white/90",
@@ -29,11 +30,14 @@ const styles = {
 };
 
 interface InputTagProps extends InputProps {
-    onChangeTags?: (tags: string[]) => void;
+  onChangeTags?: (tags: string[]) => void;
 }
 
 export default function InputTag(props: InputTagProps) {
-    const maxTags = 3;
+  const {
+    formState: { isDirty, isSubmitted },
+  } = useFormContext();
+  const maxTags = 3;
   const [tags, setTags] = useState<string[]>([]);
   const [text, setText] = useState("");
   const {
@@ -82,7 +86,7 @@ export default function InputTag(props: InputTagProps) {
       const newTags = text.split(",").map((text) => text.trim());
       const cleanTags = newTags.filter((text) => text != "");
       lastInput = "";
-      if(tags.length < maxTags) {
+      if (tags.length < maxTags) {
         setTags([...tags, ...cleanTags]);
       }
     }
@@ -92,10 +96,10 @@ export default function InputTag(props: InputTagProps) {
   const onDelete: KeyboardEventHandler<HTMLInputElement> = ({ key }) => {
     if (key == "Backspace" && text == "") {
       const [lastTag, ...restTags] = tags.toReversed();
-      if(lastTag) {
+      if (lastTag) {
         setTags(restTags.toReversed());
       }
-      if(restTags) {
+      if (restTags) {
         setText(lastTag);
       }
     }
@@ -103,7 +107,14 @@ export default function InputTag(props: InputTagProps) {
 
   useEffect(() => {
     props.onChangeTags?.(tags);
-  }, [tags, props])
+  }, [tags]);
+
+  useEffect(() => {
+    if (!isDirty && isSubmitted) {
+        setText("");
+        setTags([])
+    }
+  }, [isDirty, isSubmitted]);
 
   const innerWrapper = useMemo(
     () => (

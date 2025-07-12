@@ -4,6 +4,7 @@ import {
   KeyboardEventHandler,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import { useFormContext } from "react-hook-form";
@@ -31,15 +32,20 @@ const styles = {
 
 interface InputTagProps extends InputProps {
   onChangeTags?: (tags: string[]) => void;
+  maxTags?: number;
 }
 
-export default function InputTag(props: InputTagProps) {
+export default function InputTag({
+  onChangeTags,
+  maxTags = 3,
+  ...restProps
+}: InputTagProps) {
   const {
     formState: { isDirty, isSubmitted },
   } = useFormContext();
-  const maxTags = 3;
   const [tags, setTags] = useState<string[]>([]);
   const [text, setText] = useState("");
+  const skipInputRef = useRef(false);
   const {
     Component,
     label,
@@ -60,7 +66,7 @@ export default function InputTag(props: InputTagProps) {
     getErrorMessageProps,
     getClearButtonProps,
   } = useInput({
-    ...props,
+    ...restProps,
     // custom styles
     classNames: {
       ...styles,
@@ -80,7 +86,14 @@ export default function InputTag(props: InputTagProps) {
   const onInput: ChangeEventHandler<HTMLInputElement> = ({
     target: { value: text },
   }) => {
-    const filteredText = text.replace(/[^a-z ]/g, "");
+    if (skipInputRef.current) {
+      skipInputRef.current = false;
+      return;
+    }
+
+    if (tags.length === maxTags) return;
+
+    const filteredText = text.replace(/[^\p{L} ]/gu, "");
     let lastInput = filteredText;
     if (text.endsWith(",")) {
       const newTags = text.split(",").map((text) => text.trim());
@@ -97,28 +110,31 @@ export default function InputTag(props: InputTagProps) {
     if (key == "Backspace" && text == "") {
       const [lastTag, ...restTags] = tags.toReversed();
       if (lastTag) {
+        console.log(lastTag);
         setTags(restTags.toReversed());
-      }
-      if (restTags) {
         setText(lastTag);
+        skipInputRef.current = true;
       }
     }
   };
 
   useEffect(() => {
-    props.onChangeTags?.(tags);
+    onChangeTags?.(tags);
   }, [tags]);
 
   useEffect(() => {
     if (!isDirty && isSubmitted) {
-        setText("");
-        setTags([])
+      setText("");
+      setTags([]);
     }
   }, [isDirty, isSubmitted]);
 
   const innerWrapper = useMemo(
     () => (
-      <div {...getInnerWrapperProps()} className="flex gap-1">
+      <div
+        {...getInnerWrapperProps()}
+        className="flex gap-1 overflow-auto pb-1 [&::-webkit-scrollbar]:h-[6px] [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-300"
+      >
         {startContent && startContent}
         <div className="inline-flex gap-1">
           {tags.map((text, idx) => (
@@ -137,6 +153,7 @@ export default function InputTag(props: InputTagProps) {
           onChange={onInput}
           onKeyDown={onDelete}
           value={text}
+          className={`bg-transparent focus-visible:bg-transparent focus-visible:outline-none`}
         />
         {end && end}
       </div>

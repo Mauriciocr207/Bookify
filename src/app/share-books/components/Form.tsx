@@ -18,7 +18,8 @@ export default function Form() {
   const methods = useForm({
     resolver: zodResolver(CreateBookSchema),
   });
-  const { register, handleSubmit, formState, control, reset, getValues } = methods;
+  const { register, handleSubmit, formState, control, reset, getValues } =
+    methods;
   const [isLoading, setIsLoading] = useState(false);
 
   const { errors } = formState;
@@ -28,11 +29,11 @@ export default function Form() {
     //   values: getValues(),
     //   errors
     // });
-  }, [formState])
+  }, [formState]);
 
   const onSubmit = async () => {
     setIsLoading(true);
-    console.log(getValues())
+    console.log(getValues());
     await new Promise((res) => setTimeout(res, 1000));
     setIsLoading(false);
     reset();
@@ -41,7 +42,7 @@ export default function Form() {
   return (
     <FormProvider {...methods}>
       <form
-        className="m-auto mt-9 max-w-5xl grid grid-cols-[656px,1fr] grid-rows-1 gap-6"
+        className="m-auto mt-9 max-w-5xl flex flex-col md:grid md:grid-cols-[656px,1fr] grid-rows-1 gap-6"
         onSubmit={handleSubmit(onSubmit)}
       >
         <div className="w-full bg-white rounded-2xl p-6">
@@ -66,6 +67,9 @@ export default function Form() {
               {...register("title")}
               isInvalid={!!errors.title}
               errorMessage={errors.title?.message}
+              classNames={{
+                helperWrapper: "absolute -bottom-6 right-0",
+              }}
             />
           </div>
           <div className="mt-6 flex w-full flex-col gap-2">
@@ -83,6 +87,9 @@ export default function Form() {
               {...register("author")}
               isInvalid={!!errors.author}
               errorMessage={errors.author?.message}
+              classNames={{
+                helperWrapper: "absolute -bottom-6 right-0",
+              }}
             />
           </div>
           <div className="flex items-center gap-2 mt-7">
@@ -94,15 +101,17 @@ export default function Form() {
             Google Drive
           </span>
           <DragAndDrop />
-          <span className="text-xs text-blue-dark font-light">
-            Se acepta .pdf
-          </span>
-          {errors.file?.message && (
-            <span className="block text-tiny text-danger font-normal">
-              {errors.file.message}
+          <div className="flex justify-between my-2">
+            <span className="text-xs text-blue-dark font-light">
+              Se acepta .pdf
             </span>
-          )}
-          <div className="flex justify-end">
+            {errors.file?.message && (
+              <span className="block text-tiny text-danger font-normal">
+                {errors.file.message}
+              </span>
+            )}
+          </div>
+          <div className="justify-end hidden md:flex">
             <Button
               className="bg-blue-night text-white flex justify-center"
               type="submit"
@@ -115,7 +124,7 @@ export default function Form() {
             </Button>
           </div>
         </div>
-        <div className="w-full bg-white rounded-2xl p-6 h-fit max-w-[330px]">
+        <div className="w-full bg-white rounded-2xl p-6 h-fit md:max-w-[330px]">
           <div className="flex items-center gap-2">
             <TagsFileIcon />
             <h3 className="text-blue-night font-medium text-xl">
@@ -145,7 +154,7 @@ export default function Form() {
               render={({ field }) => (
                 <InputTag
                   name="tags"
-                  placeholder="Escribe tus tags aquí"
+                  placeholder="ficción,fantasía,biografía"
                   aria-label="tags"
                   onChangeTags={(tags) =>
                     field.onChange(tags.map((tag) => ({ name: tag })))
@@ -153,6 +162,21 @@ export default function Form() {
                 />
               )}
             />
+            <span className="text-xs text-blue-dark font-light">
+              Hasta 3 etiquetas, separadas por comas (,)
+            </span>
+          </div>
+          <div className="justify-end flex md:hidden mt-4">
+            <Button
+              className="bg-blue-night text-white flex justify-center"
+              type="submit"
+            >
+              {isLoading ? (
+                <BiLoaderAlt className="animate-spin h-[50%] w-fit" />
+              ) : (
+                "Enviar"
+              )}
+            </Button>
           </div>
         </div>
       </form>

@@ -87,10 +87,11 @@ export default function CategoryInput({ control }: CategoryInputProps) {
   }, [isDirty, isSubmitted]);
 
   const handleSelectCategory = (category: CategoryWithSelected) => {
+    const selectCategory = !category.selected;
     setText("");
-    setSelectedCategories([category]);
+    setSelectedCategories(selectCategory ? [category]:[]);
     selectCategoryBySlug(category.slug, !category.selected);
-    field.onChange(category.selected ? null : category.id);
+    field.onChange(selectCategory ? category.id : null);
   };
 
   const selectCategoryBySlug = (slug: string | null, selected: boolean) => {
@@ -122,6 +123,8 @@ export default function CategoryInput({ control }: CategoryInputProps) {
       const [lastCategory] = selectedCategories;
       if (lastCategory) {
         setText(lastCategory.name);
+        setSelectedCategories([]);
+        field.onChange(null);
         selectCategoryBySlug(null, false);
       }
     }
@@ -141,7 +144,7 @@ export default function CategoryInput({ control }: CategoryInputProps) {
         value={text}
         placeholder={
           selectedCategories.length === 0 && text === ""
-            ? "Selecciona categorías"
+            ? "Selecciona una categoría"
             : ""
         }
         classNames={{
@@ -150,7 +153,7 @@ export default function CategoryInput({ control }: CategoryInputProps) {
           }`,
           innerWrapper:
             "flex w-[calc(100%-25px)] gap-1 overflow-auto [&::-webkit-scrollbar]:h-[6px] [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-300",
-          input: "",
+          helperWrapper: "absolute -bottom-6 right-0",
         }}
         startContent={
           <div className="min-w-fit flex gap-1 overflow-auto">

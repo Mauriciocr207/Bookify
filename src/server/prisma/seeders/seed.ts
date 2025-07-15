@@ -19,7 +19,7 @@ async function main() {
     slug: slugify(name, { lower: true, strict: true }),
   }));
 
-  await prisma.categories.createMany({
+  await prisma.category.createMany({
     data: categories,
     skipDuplicates: true,
   });

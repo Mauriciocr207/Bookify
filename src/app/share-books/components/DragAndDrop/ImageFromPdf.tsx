@@ -1,23 +1,18 @@
-"use client";
-
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { RenderTask } from "pdfjs-dist";
 import { usePDF } from "@hooks";
 
 interface ImageFromPdfProps {
   file: File | null;
-  onBeginConvertion: () => void;
-  onFinishConvertion: () => void;
-  height: number;
+  onImageReady: (image: Blob | null) => void;
 }
 
 export default function ImageFromPdf({
   file,
-  onBeginConvertion,
-  onFinishConvertion,
-  height,
+  onImageReady = () => {},
 }: ImageFromPdfProps) {
+  const [loading, setLoading] = useState(true);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const pdfjs = usePDF();
 
@@ -33,14 +28,14 @@ export default function ImageFromPdf({
     let renderTask: RenderTask;
 
     (async () => {
-      onBeginConvertion();
       if (!pdfjs) return;
 
       const blobUrl = URL.createObjectURL(file);
       const pdf = await pdfjs.getDocument(blobUrl).promise;
       const page = await pdf.getPage(1);
 
-      const scale = 1.5;
+      const scale = 1;
+      
       const viewport = page.getViewport({ scale });
 
       canvas.width = viewport.width;
@@ -52,7 +47,15 @@ export default function ImageFromPdf({
       });
 
       await renderTask.promise;
-      onFinishConvertion();
+
+      canvas.toBlob(
+        (blob) => {
+          setLoading(false);
+          onImageReady(blob);
+        },
+        "image/webp",
+        0.5
+      );
     })();
 
     return () => {
@@ -67,7 +70,7 @@ export default function ImageFromPdf({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       className="w-full max-h-[223px] overflow-hidden absolute bottom-0 transition-height"
-      style={{ height, transitionDuration: "300ms" }}
+      style={{ height: loading ? "0px" : "223px", transitionDuration: "300ms" }}
     >
       <canvas ref={canvasRef} className={`w-full absolute top-0`} />
     </motion.div>

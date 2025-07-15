@@ -14,29 +14,32 @@ export async function POST(
 ): Promise<NextResponse<UploadFileResponse>> {
   try {
     const uploadLength = parseInt(req.headers.get("x-upload-length") || "");
+    const type = req.headers.get("x-type") || "";
 
     if (uploadLength > maxFileSize) {
       return NextResponse.json(
-        { error: "Bad request, file size exceeded" },
+        { error: "Bad request, file size exceeded", uuid: null, url: null },
         { status: 400 }
       );
     }
 
-    const Key = randomUUID();
+    const uuid = randomUUID();
+    const Key = `tmp/${uuid}`;
 
     const putObjectCommand = new PutObjectCommand({
       Bucket: R2_BUCKET_NAME,
       Key,
+      ContentType: type,
     });
 
     const url = await getSignedUrl(R2Client, putObjectCommand, {
       expiresIn: 60,
     });
 
-    return NextResponse.json({ url, uuid: Key }, { status: 200 });
+    return NextResponse.json({ url, uuid }, { status: 200 });
   } catch {
     return NextResponse.json(
-      { error: "Internal Server Error" },
+      { error: "Internal Server Error", uuid: null, url: null },
       { status: 500 }
     );
   }

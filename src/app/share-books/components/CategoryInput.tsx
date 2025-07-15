@@ -6,21 +6,22 @@ import {
   useRef,
   useState,
 } from "react";
-import { Control, useController } from "react-hook-form";
+import { useController, useFormContext } from "react-hook-form";
 import { MdOutlineKeyboardArrowDown } from "react-icons/md";
 import { AnimatePresence, motion } from "framer-motion";
-import z from "zod";
-import CategorySchema from "@validation/CategorySchema";
 import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 import { FaCheck } from "react-icons/fa";
 import { LuLoaderCircle } from "react-icons/lu";
 import { FormValues } from "./Form";
 
-type CategorySchema = z.infer<typeof CategorySchema>;
+type CategorySchema = {
+  name: string;
+  slug: string;
+};
 
 interface CategoryWithSelected extends CategorySchema {
-  selected: boolean;
+    selected: boolean;
 }
 
 const categoryFilter = (category: CategorySchema, text: string) => {
@@ -37,16 +38,13 @@ const fetchCategories = async (): Promise<CategorySchema[]> => {
   return categories;
 };
 
-interface CategoryInputProps {
-  control: Control<FormValues>;
-}
-
-export default function CategoryInput({ control }: CategoryInputProps) {
+export default function CategoryInput() {
+  const { control } = useFormContext<FormValues>();
   const {
     field,
     formState: { errors, isDirty, isSubmitted },
-  } = useController({
-    name: "categoryId",
+  } = useController<FormValues>({
+    name: "categorySlug",
     control,
   });
   const { data: categories, isLoading } = useQuery({
@@ -89,9 +87,9 @@ export default function CategoryInput({ control }: CategoryInputProps) {
   const handleSelectCategory = (category: CategoryWithSelected) => {
     const selectCategory = !category.selected;
     setText("");
-    setSelectedCategories(selectCategory ? [category]:[]);
+    setSelectedCategories(selectCategory ? [category] : []);
     selectCategoryBySlug(category.slug, !category.selected);
-    field.onChange(selectCategory ? category.id : null);
+    field.onChange(selectCategory ? category.slug : null);
   };
 
   const selectCategoryBySlug = (slug: string | null, selected: boolean) => {
@@ -136,8 +134,8 @@ export default function CategoryInput({ control }: CategoryInputProps) {
         id="categoryId"
         type="text"
         aria-label="categoryId"
-        isInvalid={!!errors.categoryId}
-        errorMessage={errors.categoryId?.message}
+        isInvalid={!!errors.categorySlug}
+        errorMessage={errors.categorySlug?.message}
         onFocusChange={setEditing}
         onKeyDown={onDelete}
         onInput={onInput}
@@ -149,7 +147,7 @@ export default function CategoryInput({ control }: CategoryInputProps) {
         }
         classNames={{
           inputWrapper: `${
-            errors.categoryId && "bg-danger-50 hover:!bg-danger-100"
+            errors.categorySlug && "bg-danger-50 hover:!bg-danger-100"
           }`,
           innerWrapper:
             "flex w-[calc(100%-25px)] gap-1 overflow-auto [&::-webkit-scrollbar]:h-[6px] [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-300",

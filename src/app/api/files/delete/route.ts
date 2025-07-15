@@ -1,4 +1,4 @@
-import { DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { DeleteObjectsCommand } from "@aws-sdk/client-s3";
 import { UploadFileDeleteRequest } from "@interfaces";
 import R2Client from "@server/cloudflare/R2Client";
 
@@ -8,14 +8,17 @@ const { R2_BUCKET_NAME } = process.env;
 
 export async function DELETE(req: NextRequest) {
   try {
-    const { uuid: Key }: UploadFileDeleteRequest = await req.json();
+    const { uuid, previewUUID }: UploadFileDeleteRequest = await req.json();
 
-    const deleteObjectCommand = new DeleteObjectCommand({
+    const deleteObjectsCommand = new DeleteObjectsCommand({
       Bucket: R2_BUCKET_NAME,
-      Key,
+      Delete: {
+        Objects: [{ Key: `tmp/${uuid}` }, { Key: `tmp/${previewUUID}` }],
+        Quiet: false,
+      },
     });
 
-    const metadata = await R2Client.send(deleteObjectCommand);
+    const metadata = await R2Client.send(deleteObjectsCommand);
 
     return NextResponse.json({ metadata });
   } catch {

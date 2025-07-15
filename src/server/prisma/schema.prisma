@@ -1,57 +1,61 @@
 generator client {
-  provider = "prisma-client-js"
+    provider = "prisma-client-js"
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+    provider  = "postgresql"
+    url       = env("DATABASE_URL")
+    directUrl = env("DIRECT_URL")
 }
 
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-model books {
-  id         BigInt      @id @default(autoincrement())
-  created_at DateTime    @default(now()) @db.Timestamptz(6)
-  title      String?
-  author     String?
-  fileid     BigInt?
-  categoryid BigInt?
-  categories categories? @relation(fields: [categoryid], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  files      files?      @relation(fields: [fileid], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  Tags       tags[]
+model Book {
+    id                         Int       @id(map: "books_pkey") @default(autoincrement())
+    created_at                 DateTime  @default(now()) @db.Timestamptz(6)
+    title                      String?
+    author                     String?
+    fileid                     Int?
+    categoryid                 Int?
+    imageId                    Int?
+    Category                   Category? @relation(fields: [categoryid], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "books_categoryid_fkey")
+    Files_Books_fileidToFiles  File?     @relation("Books_fileidToFiles", fields: [fileid], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "books_fileid_fkey")
+    Files_Books_imageIdToFiles File?     @relation("Books_imageIdToFiles", fields: [imageId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "books_imageId_fkey")
+    Tags                       Tag[]
+
+    @@map("books")
 }
 
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-model categories {
-  id         BigInt    @id @default(autoincrement())
-  name       String?
-  slug       String?   @unique
-  created_at DateTime? @db.Timestamptz(6)
-  books      books[]
+model Category {
+    id         Int   @id(map: "Category_pkey") @default(autoincrement())
+    name       String?
+    slug       String?  @unique(map: "Category_slug_key")
+    created_at DateTime @default(now()) @db.Timestamptz(6)
+    Books      Book[]
+
+    @@map("category")
 }
 
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-model files {
-  id           BigInt   @id @default(autoincrement())
-  created_at   DateTime @default(now()) @db.Timestamptz(6)
-  uuid         String   @unique @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  filename     String?
-  path         String?
-  size         BigInt   @default(0)
-  content_type String?
-  metadata     Json?
-  books        books[]
+model File {
+    id                         Int   @id(map: "files_pkey") @default(autoincrement())
+    created_at                 DateTime @default(now()) @db.Timestamptz(6)
+    uuid                       String   @unique(map: "files_uuid_key") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+    filename                   String?
+    path                       String?
+    size                       BigInt   @default(0)
+    content_type               String?
+    metadata                   Json?
+    Books_Books_fileidToFiles  Book[]   @relation("Books_fileidToFiles")
+    Books_Books_imageIdToFiles Book[]   @relation("Books_imageIdToFiles")
+
+    @@map("files")
 }
 
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-model tags {
-  id         BigInt   @id @default(autoincrement())
-  created_at DateTime @default(now()) @db.Timestamptz(6)
-  name       String?
-  slug       String?
-  bookId     BigInt?
-  books      books?   @relation(fields: [bookId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+model Tag {
+    id         Int   @id(map: "tags_pkey") @default(autoincrement())
+    created_at DateTime @default(now()) @db.Timestamptz(6)
+    name       String?
+    slug       String?
+    bookId     Int?
+    Books      Book?    @relation(fields: [bookId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "tags_bookId_fkey")
+
+    @@map("tags")
 }

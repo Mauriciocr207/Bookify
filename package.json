@@ -12,7 +12,6 @@
     "prisma:pull": "npx prisma db pull --schema ./src/server/prisma/schema.prisma",
     "prisma:generate": "npx prisma generate --schema ./src/server/prisma/schema.prisma",
     "prisma:migrate": "npx prisma migrate dev --schema ./src/server/prisma/schema.prisma",
-    "prisma:seed": "",
     "postinstall": "npm run prisma:generate"
   },
   "prisma": {

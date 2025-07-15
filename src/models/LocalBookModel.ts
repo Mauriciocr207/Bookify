@@ -1,7 +1,7 @@
 import { BookSavedInterface } from "@interfaces";
 import db, { DexieDBInteface } from "./DexieDB";
 
-class BookModel {
+class LocalBookModel {
   db: DexieDBInteface;
 
   constructor(db: DexieDBInteface) {
@@ -17,6 +17,6 @@ class BookModel {
   }
 }
 
-const indexedDatabase = new BookModel(db);
+const localBookModel = new LocalBookModel(db);
 
-export default indexedDatabase;
+export default localBookModel;

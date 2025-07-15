@@ -12,7 +12,7 @@ import {
   useDisclosure,
 } from "@heroui/react";
 import { FolderInterface } from "@interfaces";
-import { FolderModel } from "@models";
+import { LocalFolderModel } from "@models";
 
 const MAX_LENGTH_NAME = 14;
 
@@ -38,7 +38,7 @@ export default function FolderItem({ folder }: Props) {
   };
 
   const handleDeleteFolder = async () => {
-    await FolderModel.deleteFolder(folder.id);
+    await LocalFolderModel.deleteFolder(folder.id);
     setFolder(currentFolderId);
   };
 

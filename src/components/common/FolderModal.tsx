@@ -12,7 +12,7 @@ import {
 } from "@heroui/react";
 import { useState } from "react";
 import { KeyboardEvent } from "@react-types/shared";
-import { FolderModel } from "@models";
+import { LocalFolderModel } from "@models";
 import { FolderInterface } from "@interfaces";
 
 export default function FolderModal({
@@ -39,7 +39,7 @@ export default function FolderModal({
 
   async function handleEditFolder() {
     if (folder) {
-      const folderId = await FolderModel.editFolder({
+      const folderId = await LocalFolderModel.editFolder({
         name: inputValue,
         parentId: folder.parentId,
         id: folder.id,
@@ -53,7 +53,7 @@ export default function FolderModal({
 
   async function handleCreateFolder() {
     if(parentFolderId) {
-        const folderId = await FolderModel.saveFolder({
+        const folderId = await LocalFolderModel.saveFolder({
           name: inputValue,
           parentId: parentFolderId,
           id: Date.now().toString(),

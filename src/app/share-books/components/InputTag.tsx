@@ -31,7 +31,7 @@ const styles = {
 };
 
 interface InputTagProps extends InputProps {
-  onChangeTags?: (tags: string[]) => void;
+  onChangeTags?: (tags: { name: string}[]) => void;
   maxTags?: number;
 }
 
@@ -43,7 +43,7 @@ export default function InputTag({
   const {
     formState: { isDirty, isSubmitted },
   } = useFormContext();
-  const [tags, setTags] = useState<string[]>([]);
+  const [tags, setTags] = useState<{ name: string }[]>([]);
   const [text, setText] = useState("");
   const skipInputRef = useRef(false);
   const {
@@ -100,7 +100,7 @@ export default function InputTag({
       const cleanTags = newTags.filter((text) => text != "");
       lastInput = "";
       if (tags.length < maxTags) {
-        setTags([...tags, ...cleanTags]);
+        setTags([...tags, ...cleanTags.map((name) => ({ name }))]);
       }
     }
     setText(lastInput);
@@ -110,9 +110,8 @@ export default function InputTag({
     if (key == "Backspace" && text == "") {
       const [lastTag, ...restTags] = tags.toReversed();
       if (lastTag) {
-        console.log(lastTag);
         setTags(restTags.toReversed());
-        setText(lastTag);
+        setText(lastTag.name);
         skipInputRef.current = true;
       }
     }
@@ -137,13 +136,13 @@ export default function InputTag({
       >
         {startContent && startContent}
         <div className="inline-flex gap-1">
-          {tags.map((text, idx) => (
+          {tags.map(({ name }, idx) => (
             <Chip
               size="sm"
               className="px-3.5 py-1 font-medium text-[10px] bg-blue-transparent/25 text-blue"
               key={idx}
             >
-              {text}
+              { name }
             </Chip>
           ))}
         </div>

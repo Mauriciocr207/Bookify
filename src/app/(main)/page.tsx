@@ -65,7 +65,6 @@ export default function Home() {
       <section className="flex flex-col items-center justify-center mt-20">
         <InputSearch />
         <div className="flex flex-col gap-y-4 mt-10">
-          <Filter title="Ciencia" tags={filteringTags} />
           <Filter title="Categorías" tags={filteringTags} />
         </div>
         <div className="flex flex-wrap gap-4 mt-8 justify-center">

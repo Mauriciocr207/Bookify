@@ -1,18 +1,32 @@
 "use client";
 
 import { BookFormIcon, TagsFileIcon, UploadFileIcon } from "@components/icons";
-import { Button, Input } from "@heroui/react";
+import { addToast, Button, Input } from "@heroui/react";
 
 import InputTag from "./InputTag";
 import DragAndDrop from "./DragAndDrop";
-import { Controller, FormProvider, useForm } from "react-hook-form";
+import {
+  Controller,
+  FormProvider,
+  SubmitHandler,
+  useForm,
+} from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import CreateBookSchema from "@validation/CreateBookSchema";
 import { BiLoaderAlt } from "react-icons/bi";
 import CategoryInput from "./CategoryInput";
 
-export type FormValues = typeof CreateBookSchema._type;
+type CreateBookSchemaType = typeof CreateBookSchema._type;
+
+export interface FormValues {
+  title: string | null;
+  author: string | null;
+  categorySlug: string | null;
+  file: CreateBookSchemaType["file"] | null;
+  image: CreateBookSchemaType["image"] | null;
+  tags?: Array<{ name: string }> | null;
+}
 
 export default function Form() {
   const methods = useForm({
@@ -25,18 +39,38 @@ export default function Form() {
   const { errors } = formState;
 
   useEffect(() => {
-    // console.log({
-    //   values: getValues(),
-    //   errors
-    // });
+    console.log({
+      errors: formState.errors,
+      values: getValues(),
+    });
   }, [formState]);
 
-  const onSubmit = async () => {
-    setIsLoading(true);
-    console.log(getValues());
-    await new Promise((res) => setTimeout(res, 1000));
-    setIsLoading(false);
-    reset();
+  const onSubmit: SubmitHandler<FormValues> = async (data) => {
+    try {
+      setIsLoading(true);
+      const response = await fetch("/api/book/save", {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) throw new Error();
+
+      addToast({
+        title: "Enviado",
+        description: "Tu libro se ha publicado correctamente",
+        color: "success",
+      });
+
+      reset();
+    } catch {
+      addToast({
+        title: "Error",
+        description: "Ha habido un error al publicar tu libro",
+        color: "danger",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -138,7 +172,7 @@ export default function Form() {
             >
               Categoría
             </label>
-            <CategoryInput control={control} />
+            <CategoryInput />
           </div>
           <div className="mt-6 flex w-full flex-col gap-2">
             <label
@@ -156,9 +190,7 @@ export default function Form() {
                   name="tags"
                   placeholder="ficción,fantasía,biografía"
                   aria-label="tags"
-                  onChangeTags={(tags) =>
-                    field.onChange(tags.map((tag) => ({ name: tag })))
-                  }
+                  onChangeTags={(tags) => field.onChange(tags)}
                 />
               )}
             />

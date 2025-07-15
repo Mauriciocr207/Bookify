@@ -8,61 +8,96 @@ import { HiOutlineUpload } from "react-icons/hi";
 import { IoClose } from "react-icons/io5";
 import CircleProgressBar from "./CircleProgressBar";
 import ImageFromPdf from "./ImageFromPdf";
+import { useController, useFormContext } from "react-hook-form";
+import { FormValues } from "../Form";
 
 interface FileCardProps {
   file: File;
   onDeleteFile: () => void;
-  handleUpdateUUID: (uuid: string | null) => void;
 }
 
 const { maxFileSize } = FileUploadConfig;
 
-export default function FileCard({
-  file,
-  onDeleteFile,
-  handleUpdateUUID,
-}: FileCardProps) {
+export default function FileCard({ file, onDeleteFile }: FileCardProps) {
+  const { control } = useFormContext<FormValues>();
+  const { field: fileField } = useController<FormValues>({
+    name: "file",
+    control,
+  });
+  const { field: imageField } = useController<FormValues>({
+    name: "image",
+    control,
+  });
   const [isLoading, setIsLoading] = useState(false);
   const [isUploaded, setIsUploaded] = useState(false);
   const [loader, setLoader] = useState(0);
   const [hoverCancelUpload, setHoverCancelUpload] = useState(false);
-  const fileUploader = useRef(new FileUploader());
-  const [height, setHeight] = useState<0 | 223>(0);
+  const [loadingPreview, setLoadingPreview] = useState(true);
+  const [preview, setPreview] = useState<Blob | null>(null);
+  const fileUploader = useRef(new FileUploader(setLoader));
 
   const handleProcessFile = async () => {
     try {
+      if (!preview) return;
       setIsLoading(true);
 
-      if (file.size <= maxFileSize) {
-        await fileUploader.current.uploadFile(file, setLoader);
+      if (file.size <= maxFileSize && preview) {
+        await fileUploader.current.uploadFile(file, preview);
       }
 
-      if (file.size > maxFileSize) {
-        await fileUploader.current.uploadMultipartFile(file, setLoader);
+      if (file.size > maxFileSize && preview) {
+        await fileUploader.current.uploadMultipartFile(file, preview);
       }
 
       setIsLoading(false);
       setIsUploaded(true);
 
       const uuid = fileUploader.current.uuid;
-      if (uuid) handleUpdateUUID(uuid);
-    } catch (error) {
+      const previewUUID = fileUploader.current.previewUUID;
+      if (uuid && previewUUID) {
+        const newFile: FormValues["file"] = {
+          filename: file.name,
+          size: file.size,
+          content_type: "application/pdf",
+          uuid,
+        };
+        const newImage: FormValues["image"] = {
+          filename: previewUUID,
+          size: preview.size,
+          content_type: "image/webp",
+          uuid: previewUUID,
+        };
+        fileField.onChange(newFile);
+        imageField.onChange(newImage);
+      }
+    } catch {
       setIsLoading(false);
       setLoader(0);
-      handleUpdateUUID(null);
-      console.log(error);
+      setFileAndImageToNull();
     }
   };
 
   const handleDeleteFile = () => {
     fileUploader.current.deleteFile();
-    handleUpdateUUID(null);
+    setFileAndImageToNull();
     onDeleteFile();
   };
 
   const handleCancelUpload = () => {
-    handleUpdateUUID(null);
+    setFileAndImageToNull();
     fileUploader.current.abortUploadFile();
+  };
+
+  const handleOnImageReady = async (imageBlob: Blob | null) => {
+    if (imageBlob) {
+      setPreview(imageBlob);
+      setLoadingPreview(false);
+    }
+  };
+
+  const setFileAndImageToNull = () => {
+    fileField.onChange(null);
+    imageField.onChange(null);
   };
 
   const formattedFileSize = useMemo((): string => {
@@ -84,17 +119,12 @@ export default function FileCard({
       animate={{ opacity: 1, scale: 1, transition: { duration: 0.25 } }}
       exit={{ opacity: 0, scale: 0.5, transition: { duration: 0.25 } }}
       className={`rounded-lg overflow-hidden w-[400px] relative transition-height border ${
-        height === 0 ? "h-[73px]" : "h-[223px]"
+        loadingPreview ? "h-[73px]" : "h-[223px]"
       }`}
       style={{ transitionDuration: "300ms" }}
       key={`file-box`}
     >
-      <ImageFromPdf
-        file={file}
-        height={height}
-        onBeginConvertion={() => setHeight(0)}
-        onFinishConvertion={() => setHeight(223)}
-      />
+      <ImageFromPdf file={file} onImageReady={handleOnImageReady} />
       <motion.div className="flex justify-between p-4 h-[73px] bg-gray/90 absolute w-full bottom-0">
         <AnimatePresence initial={false}>
           {!isLoading && (
@@ -120,12 +150,7 @@ export default function FileCard({
         </AnimatePresence>
         <div className="text-white font-semibold flex flex-col justify-center text-tiny w-full overflow-hidden text-nowrap mr-4">
           <p className="w-full truncate">{file.name}</p>
-          <span
-            className="text-[9px]"
-            onClick={() => setHeight(height === 0 ? 223 : 0)}
-          >
-            {formattedFileSize}
-          </span>
+          <span className="text-[9px]">{formattedFileSize}</span>
         </div>
         <div className="w-[45px] h-[41px]">
           <AnimatePresence initial={false}>
@@ -167,7 +192,19 @@ export default function FileCard({
                 />
               </Button>
             )}
-            {!isLoading && !isUploaded && (
+            {!isLoading && !isUploaded && loadingPreview && (
+              <Button
+                isIconOnly
+                variant="ghost"
+                className="border-white text-white rounded-full"
+                as={motion.button}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                isLoading
+              ></Button>
+            )}
+            {!isLoading && !isUploaded && !loadingPreview && (
               <Button
                 isIconOnly
                 onPress={handleProcessFile}

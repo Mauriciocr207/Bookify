@@ -25,12 +25,14 @@ export async function POST(
       );
     }
 
-    const Key = randomUUID();
+    const uuid = randomUUID();
+    const Key = `tmp/${uuid}`;
 
     const { UploadId } = await R2Client.send(
       new CreateMultipartUploadCommand({
         Bucket: R2_BUCKET_NAME,
         Key,
+        ContentType: "application/pdf",
       })
     );
 
@@ -53,7 +55,7 @@ export async function POST(
     const urls = await Promise.all(getSignedUrlsRequests);
 
     return NextResponse.json(
-      { urls, uploadId: UploadId, uuid: Key },
+      { urls, uploadId: UploadId, uuid },
       { status: 200 }
     );
   } catch {

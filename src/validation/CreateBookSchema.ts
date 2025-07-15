@@ -1,6 +1,7 @@
 import z from "zod";
 import FileSchema from "./FileSchema";
 import TagSchema from "./TagSchema";
+import ImageSchema from "./ImageSchema";
 
 const CreateBookSchema = z.object({
   title: z
@@ -9,10 +10,11 @@ const CreateBookSchema = z.object({
   author: z
     .string({ message: "El autor es requerido" })
     .nonempty("El autor es requerido"),
-  categoryId: z
+  categorySlug: z
     .string({ message: "Se requiere una categoría" })
     .nonempty("Categoría inválida"),
   file: FileSchema,
+  image: ImageSchema,
   tags: z.array(TagSchema).optional(),
 });
 

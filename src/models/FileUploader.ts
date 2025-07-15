@@ -18,34 +18,53 @@ export default class FileUploaderApi {
     delete: "api/files/delete",
   };
   private abortController: AbortController | null;
-  uuid: string | null;
   private uploadId: string | null;
+  uuid: string | null;
+  previewUUID: string | null;
+  progressUploader: ProgressUploader;
 
-  constructor() {
+  constructor(onUploadProgress: UploadProgressHandler) {
     this.abortController = null;
     this.uuid = null;
+    this.previewUUID = null;
     this.uploadId = null;
+    this.progressUploader = new ProgressUploader(onUploadProgress);
   }
 
-  async uploadFile(file: File, onUploadProgress: UploadProgressHandler) {
+  async uploadFile(file: Blob, preview: Blob) {
     this.createAbortController();
-    onUploadProgress(0);
-    const { url, error, uuid } = await this.processFile<UploadFileResponse>(
+    this.progressUploader.initSteps(4);
+
+    await this.uploadSingleBlob(preview, (uuid) => {
+      this.previewUUID = uuid;
+    });
+    await this.uploadSingleBlob(file, (uuid) => {
+      this.uuid = uuid;
+    });
+  }
+
+  private async uploadSingleBlob(
+    blob: Blob,
+    onProcessBlob: (uuid: string) => void
+  ) {
+    const { error, uuid, url } = await this.processFile<UploadFileResponse>(
       this.apiUrls.upload,
-      file
+      blob
     );
 
-    onUploadProgress(50);
-
     if (error) throw new Error(error);
-    if (!url || typeof url != "string" || !uuid)
+    if (!uuid || !url)
       throw new Error("Ocurrió un error, inténtalo de nuevo más tarde");
 
-    const arrayBuffer = await file.arrayBuffer();
+    onProcessBlob(uuid);
+
+    this.progressUploader.update();
+
+    const arrayBuffer = await blob.arrayBuffer();
 
     const response = await fetch(url, {
       method: "PUT",
-      headers: { "Content-Type": "application/pdf" },
+      headers: { "Content-Type": blob.type },
       body: arrayBuffer,
       signal: this.abortController?.signal,
     });
@@ -53,27 +72,40 @@ export default class FileUploaderApi {
     if (response.status !== 200)
       throw new Error("Ocurrió un error, inténtalo de nuevo más tarde");
 
-    onUploadProgress(100);
+    this.progressUploader.update();
 
-    this.uuid = uuid;
+    return uuid;
   }
 
-  async uploadMultipartFile(
-    file: File,
-    onUploadProgress: UploadProgressHandler
-  ) {
+  private async processFile<T>(url: string, file: Blob): Promise<T> {
+    return (
+      await fetch(url, {
+        method: "POST",
+        headers: {
+          "X-Upload-Length": file.size.toString(),
+          "X-Type": file.type,
+          "Content-Type": "application/json",
+        },
+        signal: this.abortController?.signal,
+      })
+    ).json();
+  }
+
+  async uploadMultipartFile(file: Blob, preview: Blob) {
     this.createAbortController();
-    onUploadProgress(0);
+    const numberOfParts = Math.ceil(file.size / maxFileSize) + 4;
+
+    this.progressUploader.initSteps(numberOfParts);
+
+    await this.uploadSingleBlob(preview, (previewUUID) => {
+      this.previewUUID = previewUUID;
+    });
+
     const { urls, uploadId, uuid, error } =
       await this.processFile<UploadMultipartFileResponse>(
         this.apiUrls.uploadMultipartInit,
         file
       );
-
-    const numberOfParts = (urls?.length || 0) + 2;
-    const calculateProgress = (part: number) => (part / numberOfParts) * 100;
-
-    onUploadProgress(calculateProgress(1));
 
     if (error) throw new Error(error);
     if (!urls || !Array.isArray(urls) || !uploadId || !uuid)
@@ -81,6 +113,8 @@ export default class FileUploaderApi {
 
     this.uuid = uuid;
     this.uploadId = uploadId;
+
+    this.progressUploader.update();
 
     const parts: UploadPart[] = [];
 
@@ -105,7 +139,7 @@ export default class FileUploaderApi {
       const part: UploadPart = { ETag, PartNumber: i + 1 };
 
       parts.push(part);
-      onUploadProgress(calculateProgress(i + 2));
+      this.progressUploader.update();
     }
 
     const response = await fetch(this.apiUrls.uploadMultipartComplete, {
@@ -121,41 +155,28 @@ export default class FileUploaderApi {
       throw new Error("Ocurrió un error, inténtalo de nuevo más tarde");
     }
 
-    onUploadProgress(calculateProgress(numberOfParts));
+    this.progressUploader.update();
+  }
 
-    return uuid;
+  async deleteFile() {
+    if(this.uuid && this.previewUUID) {
+        await fetch(this.apiUrls.delete, {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            uuid: this.uuid,
+            previewUUID: this.previewUUID,
+          }),
+        });
+    }
+    this.uuid = null;
+    this.previewUUID = null;
   }
 
   abortUploadFile() {
     this.abortController?.abort();
-  }
-
-  async deleteFile() {
-    if (this.uuid) {
-      await fetch(this.apiUrls.delete, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          uuid: this.uuid,
-        }),
-      });
-    }
-    this.uuid = null;
-  }
-
-  private async processFile<T>(url: string, file: File): Promise<T> {
-    return (
-      await fetch(url, {
-        method: "POST",
-        headers: {
-          "X-Upload-Length": file.size.toString(),
-          "Content-Type": "application/json",
-        },
-        signal: this.abortController?.signal,
-      })
-    ).json();
   }
 
   private async abortUpload() {
@@ -167,6 +188,7 @@ export default class FileUploaderApi {
       body: JSON.stringify({
         uploadId: this.uploadId,
         uuid: this.uuid,
+        previewUUID: this.previewUUID,
       }),
     });
   }
@@ -175,7 +197,42 @@ export default class FileUploaderApi {
     this.abortController = new AbortController();
     this.abortController.signal.addEventListener(
       "abort",
-      () => this.abortUpload
+      /**
+       * Usamos () => this.abortUpload para
+       * preservar el valor de this dentro
+       * de la clase
+       */
+      () => this.abortUpload()
     );
+  }
+}
+
+class ProgressUploader {
+  percentages: Array<number>;
+  index: number;
+  onUploadProgress: UploadProgressHandler;
+
+  constructor(onUploadProgress: UploadProgressHandler) {
+    this.percentages = [];
+    this.index = 0;
+    this.onUploadProgress = onUploadProgress;
+  }
+
+  initSteps(numberOfSetps: number) {
+    this.index = 0;
+    const percentageParts = Array.from({ length: numberOfSetps })
+      .map((_, part) => (part / numberOfSetps) * 100)
+      .concat(100);
+    this.percentages = percentageParts;
+    this.update();
+  }
+
+  update() {
+    this.onUploadProgress(this.percentages[this.index]);
+    this.index = this.index + 1;
+
+    if (this.index === this.percentages.length) {
+      this.index = 0;
+    }
   }
 }

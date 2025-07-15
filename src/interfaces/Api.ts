@@ -1,5 +1,5 @@
 interface BaseRequest {
-  uuid: string;
+  uuid?: string;
 }
 
 interface BaseResponse {
@@ -7,8 +7,8 @@ interface BaseResponse {
 }
 
 export interface UploadFileResponse extends BaseResponse {
-  url?: string;
-  uuid?: string;
+  url: string | null;
+  uuid: string | null;
 }
 
 export interface UploadMultipartFileResponse extends BaseResponse {
@@ -28,7 +28,10 @@ export interface UploadMultipartFileCompleteRequest extends BaseRequest {
 }
 
 export interface UploadMultipartFileCancelRequest extends BaseRequest {
-  uploadId: string;
+  uploadId?: string;
+  previewUUID: string;
 }
 
-export type UploadFileDeleteRequest = BaseRequest;
+export interface UploadFileDeleteRequest extends BaseRequest {
+  previewUUID: string;
+}

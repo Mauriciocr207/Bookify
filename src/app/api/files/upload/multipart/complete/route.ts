@@ -10,13 +10,15 @@ export async function POST(req: NextRequest) {
   try {
     const {
       uploadId: UploadId,
-      uuid: Key,
+      uuid,
       parts,
     }: UploadMultipartFileCompleteRequest = await req.json();
 
     if (typeof UploadId != "string") {
       return NextResponse.json({ error: "Bad Request" }, { status: 400 });
     }
+
+    const Key = `tmp/${uuid}`;
 
     const completeMultipartCommand = new CompleteMultipartUploadCommand({
       Bucket: R2_BUCKET_NAME,

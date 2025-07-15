@@ -17,12 +17,12 @@ import {
   useDisclosure,
 } from "@heroui/react";
 import { BookInterface, FolderInterface } from "@interfaces";
-import { BookModel, FolderModel } from "@models";
+import { LocalBookModel, LocalFolderModel } from "@models";
 import { useEffect, useState } from "react";
 import FolderModal from "./FolderModal";
 
 async function getFolders(parentFolderId: string) {
-  return await FolderModel.getFoldersByParentId(parentFolderId);
+  return await LocalFolderModel.getFoldersByParentId(parentFolderId);
 }
 
 export default function BookItemModal({
@@ -50,7 +50,7 @@ export default function BookItemModal({
       const breadcrumbs =
         actualFolderId === "root"
           ? []
-          : await FolderModel.getBreadcrumbs(actualFolderId);
+          : await LocalFolderModel.getBreadcrumbs(actualFolderId);
       const folders = await getFolders(actualFolderId);
       setFolderId(actualFolderId);
       setFolders(folders);
@@ -59,7 +59,7 @@ export default function BookItemModal({
   }, [actualFolderId, isOpen]);
 
   async function handleBookSave() {
-    const savedBook = await BookModel.saveBook({
+    const savedBook = await LocalBookModel.saveBook({
       ...book,
       parentId: folderId === "root" ? actualFolderId : folderId,
     });
@@ -68,7 +68,7 @@ export default function BookItemModal({
   }
 
   async function handleBookDelete() {
-    await BookModel.deleteBook(book.id);
+    await LocalBookModel.deleteBook(book.id);
     onClose();
     onDelete();
   }

@@ -1,28 +1,29 @@
 -- CreateTable
 CREATE TABLE "books" (
-    "id" BIGSERIAL NOT NULL,
+    "id" SERIAL NOT NULL,
     "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "title" TEXT,
     "author" TEXT,
-    "fileid" BIGINT,
-    "categoryid" BIGINT,
+    "fileid" INTEGER,
+    "categoryid" INTEGER,
+    "imageId" INTEGER,
 
     CONSTRAINT "books_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "categories" (
-    "id" BIGSERIAL NOT NULL,
+CREATE TABLE "category" (
+    "id" SERIAL NOT NULL,
     "name" TEXT,
     "slug" TEXT,
-    "created_at" TIMESTAMPTZ(6),
+    "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "categories_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Category_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "files" (
-    "id" BIGSERIAL NOT NULL,
+    "id" SERIAL NOT NULL,
     "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "uuid" UUID NOT NULL DEFAULT gen_random_uuid(),
     "filename" TEXT,
@@ -36,26 +37,29 @@ CREATE TABLE "files" (
 
 -- CreateTable
 CREATE TABLE "tags" (
-    "id" BIGSERIAL NOT NULL,
+    "id" SERIAL NOT NULL,
     "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "name" TEXT,
     "slug" TEXT,
-    "bookId" BIGINT,
+    "bookId" INTEGER,
 
     CONSTRAINT "tags_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "categories_slug_key" ON "categories"("slug");
+CREATE UNIQUE INDEX "Category_slug_key" ON "category"("slug");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "files_uuid_key" ON "files"("uuid");
 
 -- AddForeignKey
-ALTER TABLE "books" ADD CONSTRAINT "books_categoryid_fkey" FOREIGN KEY ("categoryid") REFERENCES "categories"("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE "books" ADD CONSTRAINT "books_categoryid_fkey" FOREIGN KEY ("categoryid") REFERENCES "category"("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 -- AddForeignKey
 ALTER TABLE "books" ADD CONSTRAINT "books_fileid_fkey" FOREIGN KEY ("fileid") REFERENCES "files"("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+-- AddForeignKey
+ALTER TABLE "books" ADD CONSTRAINT "books_imageId_fkey" FOREIGN KEY ("imageId") REFERENCES "files"("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 -- AddForeignKey
 ALTER TABLE "tags" ADD CONSTRAINT "tags_bookId_fkey" FOREIGN KEY ("bookId") REFERENCES "books"("id") ON DELETE CASCADE ON UPDATE NO ACTION;

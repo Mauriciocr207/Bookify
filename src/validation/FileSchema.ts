@@ -5,6 +5,6 @@ const FileSchema = z.object({
   uuid: z.string().uuid("Archivo inválido"),
   size: z.number().positive("Archivos sin peso no permitidos"),
   content_type: z.literal("application/pdf", { message: "Archivo inválido, se acepta .pdf" }),
-}, { message: "El archivo es obligatorio" });
+}, { message: "Carga un archivo para publicar tu libro" });
 
 export default FileSchema;

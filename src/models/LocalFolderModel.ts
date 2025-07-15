@@ -1,7 +1,7 @@
 import { FolderInterface, FolderWithFilesInterface } from "@interfaces";
 import db, { DexieDBInteface } from "./DexieDB";
 
-class FolderModel {
+class LocalFolderModel {
   db: DexieDBInteface;
   private rootFolderId = "root";
   private rootFolderSymbol = "~";
@@ -123,6 +123,6 @@ class FolderModel {
   }
 }
 
-const folderModel = new FolderModel(db);
+const folderModel = new LocalFolderModel(db);
 
 export default folderModel;

@@ -85,6 +85,7 @@ export default function FolderItem({ folder }: Props) {
         </DropdownMenu>
       </Dropdown>
       <FolderModal
+        createMode={false}
         editMode={modalMode === "edit"}
         deleteMode={modalMode === "delete"}
         folder={folder}

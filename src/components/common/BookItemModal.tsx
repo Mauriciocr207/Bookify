@@ -60,7 +60,6 @@ export default function BookItemModal({
   }, [actualFolderId, isOpen]);
 
   async function handleBookSave() {
-    console.log(folderId === "root" ? actualFolderId : folderId, book.id);
     const savedBook = await LocalBookModel.saveBook({
       id: String(book.id),
       parentId: folderId === "root" ? actualFolderId : folderId,
@@ -72,7 +71,7 @@ export default function BookItemModal({
   async function handleBookDelete() {
     await LocalBookModel.deleteBook({ id: String(book.id) });
     onClose();
-    onDelete( String(book.id) );
+    onDelete(String(book.id));
   }
 
   async function onSaveFolder() {
@@ -178,6 +177,9 @@ export default function BookItemModal({
                     <AddFolderIcon />
                   </Button>
                   <FolderModal
+                    createMode={true}
+                    editMode={false}
+                    deleteMode={false}
                     backdrop="transparent"
                     onSaveFolder={onSaveFolder}
                     parentFolderId={actualFolderId}

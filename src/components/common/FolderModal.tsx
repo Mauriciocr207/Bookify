@@ -24,6 +24,7 @@ export default function FolderModal({
   onEditFolder,
   onDeleteFolder,
   backdrop = "blur",
+  createMode = true,
   editMode = false,
   deleteMode = false,
   value = "",
@@ -35,6 +36,7 @@ export default function FolderModal({
   onDeleteFolder?: (folderId: string) => void;
   backdrop?: "transparent" | "opaque" | "blur" | undefined;
   folder?: FolderInterface;
+  createMode?: boolean;
   editMode?: boolean;
   deleteMode?: boolean;
   value?: string;
@@ -71,12 +73,12 @@ export default function FolderModal({
   }
 
   async function handleDeleteFolder() {
-    if(folder?.id) {
-        await LocalFolderModel.deleteFolder(folder.id);
-        onDeleteFolder?.(folder.id);
-        disclosureHook.onClose();
+    if (folder?.id) {
+      await LocalFolderModel.deleteFolder(folder.id);
+      onDeleteFolder?.(folder.id);
+      disclosureHook.onClose();
     }
-  } 
+  }
 
   return (
     <Modal
@@ -88,7 +90,7 @@ export default function FolderModal({
       <ModalContent>
         {(onClose) => (
           <>
-            {editMode && (
+            {(editMode || createMode) && (
               <>
                 <ModalHeader className="flex flex-col gap-1">
                   Nombre de la carpeta
@@ -103,10 +105,18 @@ export default function FolderModal({
                     defaultValue={inputValue}
                     name="folderName"
                     onChange={(e) => setInputValue(e.target.value)}
-                    onKeyDown={(e: KeyboardEvent) =>
-                      e.key === "Enter" &&
-                      (editMode ? handleEditFolder() : handleCreateFolder())
-                    }
+                    onKeyDown={(e: KeyboardEvent) => {
+                      if (e.key === "Enter") {
+                        if (createMode) {
+                          handleCreateFolder();
+                          return;
+                        }
+
+                        if (editMode) {
+                          handleEditFolder();
+                        }
+                      }
+                    }}
                   />
                 </ModalBody>
                 <ModalFooter>
@@ -115,9 +125,19 @@ export default function FolderModal({
                   </Button>
                   <Button
                     color="primary"
-                    onPress={editMode ? handleEditFolder : handleCreateFolder}
+                    onPress={() => {
+                      if (createMode) {
+                        handleCreateFolder();
+                        return;
+                      }
+
+                      if (editMode) {
+                        handleEditFolder();
+                      }
+                    }}
                   >
-                    {editMode ? "Editar" : "Crear"}
+                    {createMode && "Crear"}
+                    {editMode && "Editar"}
                   </Button>
                 </ModalFooter>
               </>
@@ -126,7 +146,9 @@ export default function FolderModal({
               <>
                 <ModalHeader className="flex flex-col gap-2">
                   <h3>¿Quieres eliminar esta carpeta?</h3>
-                  <p className="text-sm text-danger/90">*Todo su contenido se perderá</p>
+                  <p className="text-sm text-danger/90">
+                    *Todo su contenido se perderá
+                  </p>
                 </ModalHeader>
                 <ModalFooter>
                   <Button color="danger" variant="flat" onPress={onClose}>

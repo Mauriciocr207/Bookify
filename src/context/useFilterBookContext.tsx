@@ -40,11 +40,12 @@ export function FilterBookContextProvider({
   initialPagination: Pagination;
   initialFilter: BookGalleryProps["params"];
 }) {
-  const [isLoading, setLoading] = useState(false);
+
+  const [isLoading, setLoading] = useState(true);
   const [search, setSearch] = useState(initialFilter.search);
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [tags, setTags] = useState<string[]>(initialFilter.tags);
-  const [books, setBooks] = useState<BookCard[]>(initialBooks);
+  const [books, setBooks] = useState<LocalBookCard[]>([]);
   const [controlledPage, setControlledPage] = useState(1);
   const [pagination, setPagination] = useState<Pagination>(initialPagination);
   const abortController = useRef<AbortController | null>(null);
@@ -58,6 +59,15 @@ export function FilterBookContextProvider({
     [search],
     500
   );
+
+  const getSavedBooks = async (books: BookCard[]) => {
+    return await Promise.all(
+      books.map(async (book: BookCard) => ({
+        ...book,
+        isSaved: await LocalBookModel.isBookSaved({ id: String(book.id) }),
+      }))
+    );
+  }
 
   const fetchBooks = useCallback(async () => {
     try {
@@ -73,14 +83,12 @@ export function FilterBookContextProvider({
         { signal: abortController.current.signal }
       );
 
-      const data = await res.json();
+      const data: {
+        books: BookCard[],
+        pagination: Pagination,
+      } = await res.json();
 
-      const booksSaved: LocalBookCard[] = await Promise.all(
-        data.books.map(async (book: BookCard) => ({
-          ...book,
-          isSaved: await LocalBookModel.isBookSaved({ id: String(book.id) }),
-        }))
-      );
+      const booksSaved = await getSavedBooks(data.books);
 
       setBooks(booksSaved);
       setPagination(data.pagination);
@@ -93,8 +101,16 @@ export function FilterBookContextProvider({
   }, [debouncedSearch, controlledPage, tags]);
 
   useEffect(() => {
-    if(firstRender.current) {
+    (async () => {
         firstRender.current = false;
+        const savedBooks = await getSavedBooks(initialBooks);
+        setBooks(savedBooks);
+        setLoading(false);
+    })();
+  }, [])
+
+  useEffect(() => {
+    if(firstRender.current) {
         return;
     }
 

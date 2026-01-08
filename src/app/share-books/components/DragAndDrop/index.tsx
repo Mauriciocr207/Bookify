@@ -59,6 +59,7 @@ export default function DragAndDrop() {
     noClick: true,
     accept: { "application/pdf": [".pdf"] },
     preventDropOnDocument: true,
+    maxSize: 20 * 1024 * 1024,
     onDragEnter: isUserOver,
     onDragLeave: isUserOver,
     onDrop,

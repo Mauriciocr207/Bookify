@@ -1,9 +1,8 @@
-export default interface BookInterface {
-  id: string;
+export type BookCard = {
+  id: number;
   title: string;
   author: string;
-  category: string;
   likes: number;
   imageUrl: string;
   downloadUrl: string;
-}
+};

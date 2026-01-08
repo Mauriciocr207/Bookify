@@ -1,61 +1,101 @@
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider  = "postgresql"
-    url       = env("DATABASE_URL")
-    directUrl = env("DIRECT_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model Book {
-    id                         Int       @id(map: "books_pkey") @default(autoincrement())
-    created_at                 DateTime  @default(now()) @db.Timestamptz(6)
-    title                      String?
-    author                     String?
-    fileid                     Int?
-    categoryid                 Int?
-    imageId                    Int?
-    Category                   Category? @relation(fields: [categoryid], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "books_categoryid_fkey")
-    Files_Books_fileidToFiles  File?     @relation("Books_fileidToFiles", fields: [fileid], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "books_fileid_fkey")
-    Files_Books_imageIdToFiles File?     @relation("Books_imageIdToFiles", fields: [imageId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "books_imageId_fkey")
-    Tags                       Tag[]
+  id                         Int              @id @default(autoincrement())
+  created_at                 DateTime         @default(now()) @db.Timestamptz(6)
+  title                      String?
+  author                     String?
+  fileid                     Int?
+  categoryid                 Int?
+  imageId                    Int?
+  Category                   Category?        @relation(fields: [categoryid], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "books_categoryid_fkey")
+  Files_Books_fileidToFiles  File?            @relation("Books_fileidToFiles", fields: [fileid], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "books_fileid_fkey")
+  Files_Books_imageIdToFiles File?            @relation("Books_imageIdToFiles", fields: [imageId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "books_imageId_fkey")
+  Tags                       Tag[]
+  user_favorites             UserFavorite[]
 
-    @@map("books")
+  @@map("books")
 }
 
 model Category {
-    id         Int   @id(map: "Category_pkey") @default(autoincrement())
-    name       String?
-    slug       String?  @unique(map: "Category_slug_key")
-    created_at DateTime @default(now()) @db.Timestamptz(6)
-    Books      Book[]
+  id         Int      @id @default(autoincrement())
+  name       String
+  slug       String  @unique
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  Books      Book[]
 
-    @@map("category")
+  @@map("categories")
 }
 
 model File {
-    id                         Int   @id(map: "files_pkey") @default(autoincrement())
-    created_at                 DateTime @default(now()) @db.Timestamptz(6)
-    uuid                       String   @unique(map: "files_uuid_key") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-    filename                   String?
-    path                       String?
-    size                       BigInt   @default(0)
-    content_type               String?
-    metadata                   Json?
-    Books_Books_fileidToFiles  Book[]   @relation("Books_fileidToFiles")
-    Books_Books_imageIdToFiles Book[]   @relation("Books_imageIdToFiles")
+  id                         Int      @id @default(autoincrement())
+  created_at                 DateTime @default(now()) @db.Timestamptz(6)
+  uuid                       String   @unique @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  filename                   String?
+  path                       String?
+  size                       Int   @default(0)
+  content_type               String?
+  metadata                   Json?
+  compressed                 Boolean  @default(false)
+  Books_Books_fileidToFiles  Book[]   @relation("Books_fileidToFiles")
+  Books_Books_imageIdToFiles Book[]   @relation("Books_imageIdToFiles")
 
-    @@map("files")
+  @@map("files")
 }
 
 model Tag {
-    id         Int   @id(map: "tags_pkey") @default(autoincrement())
-    created_at DateTime @default(now()) @db.Timestamptz(6)
-    name       String?
-    slug       String?
-    bookId     Int?
-    Books      Book?    @relation(fields: [bookId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "tags_bookId_fkey")
+  id         Int      @id @default(autoincrement())
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  name       String
+  slug       String
+  bookId     Int?
+  Books      Book?    @relation(fields: [bookId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "tags_bookId_fkey")
 
-    @@map("tags")
+  @@map("tags")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Folder {
+  id             Int              @id @default(autoincrement())
+  created_at     DateTime         @default(now()) @db.Timestamptz(6)
+  name           String?
+  user_id        Int
+  users          User            @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  user_favorites UserFavorite[]
+
+  @@map("folders")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model UserFavorite {
+  id         Int   @id @default(autoincrement())
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  user_id    Int?
+  folder_id  Int?
+  book_id    Int?
+  books      Book?    @relation(fields: [book_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  folders    Folder? @relation(fields: [folder_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users      User?   @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@map("user_favorites")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model User {
+  id             Int              @id @default(autoincrement())
+  created_at     DateTime         @default(now()) @db.Timestamptz(6)
+  email          String?
+  full_name      String?
+  folders        Folder[]
+  user_favorites UserFavorite[]
+
+  @@map("users")
 }

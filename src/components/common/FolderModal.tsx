@@ -13,7 +13,8 @@ import {
 import { useState } from "react";
 import { KeyboardEvent } from "@react-types/shared";
 import { LocalFolderModel } from "@models";
-import { FolderInterface } from "@interfaces";
+import { FolderInterface } from "@app-types/indexeddb";
+import { useFolderContext } from "@context";
 
 export default function FolderModal({
   folder,
@@ -21,21 +22,26 @@ export default function FolderModal({
   parentFolderId,
   onSaveFolder,
   onEditFolder,
+  onDeleteFolder,
   backdrop = "blur",
   editMode = false,
+  deleteMode = false,
   value = "",
 }: {
   disclosureHook: ReturnType<typeof useDisclosure>;
   parentFolderId?: string;
   onSaveFolder?: (folderId: string) => void;
   onEditFolder?: (folderId: string) => void;
+  onDeleteFolder?: (folderId: string) => void;
   backdrop?: "transparent" | "opaque" | "blur" | undefined;
   folder?: FolderInterface;
   editMode?: boolean;
+  deleteMode?: boolean;
   value?: string;
 }) {
   const { isOpen, onOpenChange } = disclosureHook;
   const [inputValue, setInputValue] = useState(value);
+  const { updateFolders } = useFolderContext();
 
   async function handleEditFolder() {
     if (folder) {
@@ -52,16 +58,25 @@ export default function FolderModal({
   }
 
   async function handleCreateFolder() {
-    if(parentFolderId) {
-        const folderId = await LocalFolderModel.saveFolder({
-          name: inputValue,
-          parentId: parentFolderId,
-          id: Date.now().toString(),
-        });
-        onSaveFolder?.(folderId);
-        setInputValue("");
+    if (parentFolderId) {
+      const folderId = await LocalFolderModel.saveFolder({
+        name: inputValue,
+        parentId: parentFolderId,
+        id: Date.now().toString(),
+      });
+      updateFolders();
+      onSaveFolder?.(folderId);
+      setInputValue("");
     }
   }
+
+  async function handleDeleteFolder() {
+    if(folder?.id) {
+        await LocalFolderModel.deleteFolder(folder.id);
+        onDeleteFolder?.(folder.id);
+        disclosureHook.onClose();
+    }
+  } 
 
   return (
     <Modal
@@ -73,36 +88,60 @@ export default function FolderModal({
       <ModalContent>
         {(onClose) => (
           <>
-            <ModalHeader className="flex flex-col gap-1">
-              Nombre de la carpeta
-            </ModalHeader>
-            <ModalBody>
-              <Input
-                label="Nombre de la carpeta"
-                placeholder="Carpeta 1"
-                type="text"
-                variant="underlined"
-                autoFocus
-                defaultValue={inputValue}
-                name="folderName"
-                onChange={(e) => setInputValue(e.target.value)}
-                onKeyDown={(e: KeyboardEvent) =>
-                  e.key === "Enter" &&
-                  (editMode ? handleEditFolder() : handleCreateFolder())
-                }
-              />
-            </ModalBody>
-            <ModalFooter>
-              <Button color="danger" variant="flat" onPress={onClose}>
-                Cerrar
-              </Button>
-              <Button
-                color="primary"
-                onPress={editMode ? handleEditFolder : handleCreateFolder}
-              >
-                {editMode ? "Editar" : "Crear"}
-              </Button>
-            </ModalFooter>
+            {editMode && (
+              <>
+                <ModalHeader className="flex flex-col gap-1">
+                  Nombre de la carpeta
+                </ModalHeader>
+                <ModalBody>
+                  <Input
+                    label="Nombre de la carpeta"
+                    placeholder="Carpeta 1"
+                    type="text"
+                    variant="underlined"
+                    autoFocus
+                    defaultValue={inputValue}
+                    name="folderName"
+                    onChange={(e) => setInputValue(e.target.value)}
+                    onKeyDown={(e: KeyboardEvent) =>
+                      e.key === "Enter" &&
+                      (editMode ? handleEditFolder() : handleCreateFolder())
+                    }
+                  />
+                </ModalBody>
+                <ModalFooter>
+                  <Button color="danger" variant="flat" onPress={onClose}>
+                    Cerrar
+                  </Button>
+                  <Button
+                    color="primary"
+                    onPress={editMode ? handleEditFolder : handleCreateFolder}
+                  >
+                    {editMode ? "Editar" : "Crear"}
+                  </Button>
+                </ModalFooter>
+              </>
+            )}
+            {deleteMode && (
+              <>
+                <ModalHeader className="flex flex-col gap-2">
+                  <h3>¿Quieres eliminar esta carpeta?</h3>
+                  <p className="text-sm text-danger/90">*Todo su contenido se perderá</p>
+                </ModalHeader>
+                <ModalFooter>
+                  <Button color="danger" variant="flat" onPress={onClose}>
+                    Cerrar
+                  </Button>
+                  <Button
+                    color="danger"
+                    variant="solid"
+                    onPress={handleDeleteFolder}
+                  >
+                    Eliminar
+                  </Button>
+                </ModalFooter>
+              </>
+            )}
           </>
         )}
       </ModalContent>

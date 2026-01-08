@@ -4,7 +4,7 @@ import {
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { FileUploadConfig } from "@config";
-import { UploadMultipartFileResponse } from "@interfaces";
+import { UploadMultipartFileResponse } from "../../../../../../types";
 import R2Client from "@server/cloudflare/R2Client";
 import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "node:crypto";

@@ -21,18 +21,19 @@
         "name": "next"
       }
     ],
+    "baseUrl": "src",
     "paths": {
-      "@components/*": ["./src/components/*"],
-      "@context": ["./src/context/index.ts"],
-      "@hooks": ["./src/hooks/index.ts"],
-      "@interfaces": ["./src/interfaces/index.ts"],
-      "@models": ["./src/models/index.ts"],
-      "@providers": ["./src/providers/index.tsx"],
-      "@styles": ["./src/styles/index.css"],
-      "@server/*": ["./src/server/*"],
-      "@utils": ["./src/utils/index.ts"],
-      "@config": ["./src/config.ts"],
-      "@validation/*": ["./src/validation/*"]
+      "@components/*": ["components/*"],
+      "@context": ["context/index.ts"],
+      "@hooks": ["hooks/index.ts"],
+      "@app-types/*": ["types/*"],
+      "@models": ["models/index.ts"],
+      "@providers": ["providers/index.tsx"],
+      "@styles": ["styles/index.css"],
+      "@server/*": ["server/*"],
+      "@utils": ["utils/index.ts"],
+      "@config": ["config.ts"],
+      "@validation/*": ["validation/*"]
     }
   },
   "include": [

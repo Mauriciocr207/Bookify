@@ -2,8 +2,9 @@ import { FileUploadConfig } from "@config";
 import {
   UploadFileResponse,
   UploadMultipartFileResponse,
-  UploadPart,
-} from "@interfaces";
+} from "@app-types/responses";
+
+import { UploadPart } from "@app-types/requests";
 
 const { maxFileSize } = FileUploadConfig;
 

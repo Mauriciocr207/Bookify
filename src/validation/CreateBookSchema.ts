@@ -15,7 +15,7 @@ const CreateBookSchema = z.object({
     .nonempty("Categoría inválida"),
   file: FileSchema,
   image: ImageSchema,
-  tags: z.array(TagSchema).optional(),
+  tags: z.array(TagSchema),
 });
 
 export default CreateBookSchema;

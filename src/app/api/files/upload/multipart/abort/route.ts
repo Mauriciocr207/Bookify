@@ -2,7 +2,7 @@ import {
   AbortMultipartUploadCommand,
   DeleteObjectCommand,
 } from "@aws-sdk/client-s3";
-import { UploadMultipartFileCancelRequest } from "@interfaces";
+import { UploadMultipartFileCancelRequest } from "../../../../../../types";
 import R2Client from "@server/cloudflare/R2Client";
 
 import { NextRequest, NextResponse } from "next/server";

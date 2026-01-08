@@ -1,20 +1,31 @@
+import { CreateBookFormValuesRequest } from "@app-types/requests";
+import { CreateBookFormValuesResponse } from "@app-types/responses";
 import { CopyObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import R2Client from "@server/cloudflare/R2Client";
 import prisma from "@server/prisma/prisma";
 import CreateBookSchema from "@validation/CreateBookSchema";
 import { NextRequest, NextResponse } from "next/server";
+import slugify from "slugify";
 
 const { R2_BUCKET_NAME } = process.env;
 
-export async function POST(req: NextRequest) {
+type TagInput = {
+    name: string;
+    slug: string;
+    bookId: number;
+}
+
+export async function POST(
+  req: NextRequest
+): Promise<NextResponse<CreateBookFormValuesResponse>> {
   try {
-    const data = await req.json();
+    const data: CreateBookFormValuesRequest = await req.json();
     const validation = CreateBookSchema.safeParse(data);
 
     if (!validation.success) {
       return NextResponse.json(
         {
-          error: validation.error,
+          error: validation.error.message,
         },
         { status: 400 }
       );
@@ -32,7 +43,7 @@ export async function POST(req: NextRequest) {
 
     await moveFileAndImage(book.file.uuid, book.image.uuid);
 
-    await prisma.$transaction(async (tx) => {
+    const savedBook = await prisma.$transaction(async (tx) => {
       const { file, image } = book;
       const createdFile = await tx.file.create({
         data: {
@@ -49,7 +60,7 @@ export async function POST(req: NextRequest) {
           filename: image.filename,
           size: image.size,
           content_type: image.content_type,
-          path: `books/${image.uuid}`,
+          path: `images/${image.uuid}`,
         },
       });
       const createdBook = await tx.book.create({
@@ -65,11 +76,24 @@ export async function POST(req: NextRequest) {
       return createdBook;
     });
 
-    return NextResponse.json(null, { status: 200 });
+    if (savedBook && book.tags && book.tags.length > 0) {
+      const newTags: TagInput[] = book.tags.map(({ name }) => {
+        const slug = slugify(name, { lower: true, strict: true });
+        return { name, slug, bookId: savedBook.id };
+      });
+
+      await prisma.tag.createMany({
+        data: newTags,
+      });
+    }
+
+    return NextResponse.json({ error: null }, { status: 200 });
   } catch (error: unknown) {
     if (error instanceof Error) {
       return NextResponse.json({ error: error.message }, { status: 400 });
     }
+
+    return NextResponse.json({ error: null }, { status: 400 });
   }
 }
 

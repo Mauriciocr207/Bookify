@@ -95,12 +95,12 @@ export default function InputTag({
 
     const filteredText = text.replace(/[^\p{L} ]/gu, "");
     let lastInput = filteredText;
-    if (text.endsWith(",")) {
-      const newTags = text.split(",").map((text) => text.trim());
-      const cleanTags = newTags.filter((text) => text != "");
+    if (text.endsWith(",") && text.length > 1) {
+      const newTag = lastInput;
+      const alreadyExist = tags.some((tag) => tag.name === newTag);
       lastInput = "";
-      if (tags.length < maxTags) {
-        setTags([...tags, ...cleanTags.map((name) => ({ name }))]);
+      if (tags.length < maxTags && !alreadyExist) {
+        setTags((prevTags) => [...prevTags, { name: newTag }]);
       }
     }
     setText(lastInput);

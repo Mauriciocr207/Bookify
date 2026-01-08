@@ -1,4 +1,7 @@
-import { FolderInterface, FolderWithFilesInterface } from "@interfaces";
+import {
+  FolderInterface,
+  FolderWithFilesInterface,
+} from "@app-types/indexeddb";
 import { LocalFolderModel } from "@models";
 import { isClientSide } from "@utils";
 import { createContext, useContext, useEffect, useState } from "react";
@@ -10,6 +13,7 @@ interface FolderContextType {
   currentFolder: FolderWithFilesInterface;
   breadcrumbs: FolderInterface[];
   setFolder: (folderId: string) => void;
+  updateFolders: () => Promise<void>;
 }
 
 // Crea el contexto con un valor inicial
@@ -45,12 +49,14 @@ export function FolderContextProvider({
     setBreadcrumbs(breadcrumbs);
   }
 
+  async function updateFolders() {
+    setIsLoading(true);
+    await setFolder(currentFolderId);
+    setIsLoading(false);
+  }
+
   useEffect(() => {
-    (async () => {
-      setIsLoading(true);
-      await setFolder(currentFolderId);
-      setIsLoading(false);
-    })();
+    updateFolders();
   }, []);
 
   return (
@@ -61,6 +67,7 @@ export function FolderContextProvider({
         breadcrumbs,
         setFolder,
         isLoading,
+        updateFolders,
       }}
     >
       {children}

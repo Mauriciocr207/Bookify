@@ -1,6 +1,7 @@
 export const API_URLS = {
   books: {
     save: "book/save",
+    get: "book/get"
   },
   files: {
     upload: {

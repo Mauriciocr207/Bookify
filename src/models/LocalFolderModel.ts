@@ -1,4 +1,7 @@
-import { FolderInterface, FolderWithFilesInterface } from "@interfaces";
+import {
+  FolderInterface,
+  FolderWithFilesInterface,
+} from "@app-types/indexeddb";
 import db, { DexieDBInteface } from "./DexieDB";
 
 class LocalFolderModel {
@@ -53,7 +56,13 @@ class LocalFolderModel {
             .equals(folderId)
             .primaryKeys();
 
+          const booksInFolder = await this.db.books
+            .where("parentId")
+            .equals(folderId)
+            .primaryKeys();
+
           await this.db.folders.bulkDelete(subfolders);
+          await this.db.books.bulkDelete(booksInFolder);
 
           for (const subfolder of subfolders) {
             await recursiveDelete(subfolder);
@@ -62,7 +71,7 @@ class LocalFolderModel {
           await this.db.folders.delete(folderId);
         }
       );
-    }
+    };
 
     await recursiveDelete(folderId);
 

@@ -1,10 +1,10 @@
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { UploadFileResponse } from "@interfaces";
 import { FileUploadConfig } from "@config";
 import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "node:crypto";
 import R2Client from "@server/cloudflare/R2Client";
+import { UploadFileResponse } from "@app-types/responses";
 
 const { R2_BUCKET_NAME } = process.env;
 const { maxFileSize } = FileUploadConfig;
@@ -18,7 +18,7 @@ export async function POST(
 
     if (uploadLength > maxFileSize) {
       return NextResponse.json(
-        { error: "Bad request, file size exceeded", uuid: null, url: null },
+        { error: "Bad request, file size exceeded", url: null, uuid: null },
         { status: 400 }
       );
     }
@@ -39,7 +39,7 @@ export async function POST(
     return NextResponse.json({ url, uuid }, { status: 200 });
   } catch {
     return NextResponse.json(
-      { error: "Internal Server Error", uuid: null, url: null },
+      { error: "Internal Server Error", url: null, uuid: null },
       { status: 500 }
     );
   }

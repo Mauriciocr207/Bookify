@@ -19,7 +19,6 @@ export const config = {
   matcher: [
     "/api/files/:path*",
     "/api/files/upload/multipart/:path*",
-    // "/api/categories",
   ],
 };
 

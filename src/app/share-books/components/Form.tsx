@@ -12,40 +12,22 @@ import {
   useForm,
 } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import CreateBookSchema from "@validation/CreateBookSchema";
 import { BiLoaderAlt } from "react-icons/bi";
 import CategoryInput from "./CategoryInput";
-
-type CreateBookSchemaType = typeof CreateBookSchema._type;
-
-export interface FormValues {
-  title: string | null;
-  author: string | null;
-  categorySlug: string | null;
-  file: CreateBookSchemaType["file"] | null;
-  image: CreateBookSchemaType["image"] | null;
-  tags?: Array<{ name: string }> | null;
-}
+import { CreateBookFormValues } from "@app-types/models";
 
 export default function Form() {
   const methods = useForm({
     resolver: zodResolver(CreateBookSchema),
   });
-  const { register, handleSubmit, formState, control, reset, getValues } =
-    methods;
+  const { register, handleSubmit, formState, control, reset } = methods;
   const [isLoading, setIsLoading] = useState(false);
 
   const { errors } = formState;
 
-  useEffect(() => {
-    console.log({
-      errors: formState.errors,
-      values: getValues(),
-    });
-  }, [formState]);
-
-  const onSubmit: SubmitHandler<FormValues> = async (data) => {
+  const onSubmit: SubmitHandler<CreateBookFormValues> = async (data) => {
     try {
       setIsLoading(true);
       const response = await fetch("/api/book/save", {
@@ -137,7 +119,7 @@ export default function Form() {
           <DragAndDrop />
           <div className="flex justify-between my-2">
             <span className="text-xs text-blue-dark font-light">
-              Se acepta .pdf
+              Se acepta .pdf menor a 20MB
             </span>
             {errors.file?.message && (
               <span className="block text-tiny text-danger font-normal">
@@ -149,6 +131,7 @@ export default function Form() {
             <Button
               className="bg-blue-night text-white flex justify-center"
               type="submit"
+              isDisabled={isLoading}
             >
               {isLoading ? (
                 <BiLoaderAlt className="animate-spin h-[50%] w-fit" />
@@ -202,6 +185,7 @@ export default function Form() {
             <Button
               className="bg-blue-night text-white flex justify-center"
               type="submit"
+              isDisabled={isLoading}
             >
               {isLoading ? (
                 <BiLoaderAlt className="animate-spin h-[50%] w-fit" />

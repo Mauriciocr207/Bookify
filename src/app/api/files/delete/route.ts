@@ -1,5 +1,5 @@
 import { DeleteObjectsCommand } from "@aws-sdk/client-s3";
-import { UploadFileDeleteRequest } from "@interfaces";
+import { UploadFileDeleteRequest } from "../../../../types";
 import R2Client from "@server/cloudflare/R2Client";
 
 import { NextRequest, NextResponse } from "next/server";

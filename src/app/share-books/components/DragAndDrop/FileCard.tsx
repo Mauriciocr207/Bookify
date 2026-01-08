@@ -9,7 +9,7 @@ import { IoClose } from "react-icons/io5";
 import CircleProgressBar from "./CircleProgressBar";
 import ImageFromPdf from "./ImageFromPdf";
 import { useController, useFormContext } from "react-hook-form";
-import { FormValues } from "../Form";
+import { CreateBookFormValues } from "@app-types/models";
 
 interface FileCardProps {
   file: File;
@@ -19,12 +19,12 @@ interface FileCardProps {
 const { maxFileSize } = FileUploadConfig;
 
 export default function FileCard({ file, onDeleteFile }: FileCardProps) {
-  const { control } = useFormContext<FormValues>();
-  const { field: fileField } = useController<FormValues>({
+  const { control } = useFormContext<CreateBookFormValues>();
+  const { field: fileField } = useController<CreateBookFormValues>({
     name: "file",
     control,
   });
-  const { field: imageField } = useController<FormValues>({
+  const { field: imageField } = useController<CreateBookFormValues>({
     name: "image",
     control,
   });
@@ -55,13 +55,13 @@ export default function FileCard({ file, onDeleteFile }: FileCardProps) {
       const uuid = fileUploader.current.uuid;
       const previewUUID = fileUploader.current.previewUUID;
       if (uuid && previewUUID) {
-        const newFile: FormValues["file"] = {
+        const newFile: CreateBookFormValues["file"] = {
           filename: file.name,
           size: file.size,
           content_type: "application/pdf",
           uuid,
         };
-        const newImage: FormValues["image"] = {
+        const newImage: CreateBookFormValues["image"] = {
           filename: previewUUID,
           size: preview.size,
           content_type: "image/webp",

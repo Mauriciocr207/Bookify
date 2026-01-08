@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 
 export function useDebouncedEffect(
   effect: () => void,
-  deps: any[],
+  deps: string[],
   delay: number
 ) {
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);

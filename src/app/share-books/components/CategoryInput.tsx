@@ -13,7 +13,7 @@ import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 import { FaCheck } from "react-icons/fa";
 import { LuLoaderCircle } from "react-icons/lu";
-import { FormValues } from "./Form";
+import { CreateBookFormValues } from "@app-types/models";
 
 type CategorySchema = {
   name: string;
@@ -39,11 +39,11 @@ const fetchCategories = async (): Promise<CategorySchema[]> => {
 };
 
 export default function CategoryInput() {
-  const { control } = useFormContext<FormValues>();
+  const { control } = useFormContext<CreateBookFormValues>();
   const {
     field,
     formState: { errors, isDirty, isSubmitted },
-  } = useController<FormValues>({
+  } = useController<CreateBookFormValues>({
     name: "categorySlug",
     control,
   });

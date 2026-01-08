@@ -1,10 +1,10 @@
+import { UploadMultipartFileResponse } from "@app-types/responses";
 import {
   CreateMultipartUploadCommand,
   UploadPartCommand,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { FileUploadConfig } from "@config";
-import { UploadMultipartFileResponse } from "../../../../../../types";
 import R2Client from "@server/cloudflare/R2Client";
 import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "node:crypto";
@@ -20,7 +20,12 @@ export async function POST(
 
     if (uploadLength < maxFileSize) {
       return NextResponse.json(
-        { error: "Bad request, the file size is too small" },
+        {
+          error: "Bad request, the file size is too small",
+          urls: [],
+          uploadId: "",
+          uuid: "",
+        },
         { status: 400 }
       );
     }
@@ -35,6 +40,20 @@ export async function POST(
         ContentType: "application/pdf",
       })
     );
+
+    if (!UploadId) {
+      return NextResponse.json(
+        {
+          error: "Bad request, the file size is too small",
+          urls: [],
+          uploadId: "",
+          uuid: "",
+        },
+        {
+          status: 404,
+        }
+      );
+    }
 
     const uploadParts = Math.ceil(uploadLength / maxFileSize);
 
@@ -60,7 +79,7 @@ export async function POST(
     );
   } catch {
     return NextResponse.json(
-      { error: "Internal Server Error" },
+      { error: "Internal Server Error", urls: [], uploadId: "", uuid: "" },
       { status: 500 }
     );
   }

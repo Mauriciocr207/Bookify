@@ -1,5 +1,5 @@
+import { UploadMultipartFileCompleteRequest } from "@app-types/requests";
 import { CompleteMultipartUploadCommand } from "@aws-sdk/client-s3";
-import { UploadMultipartFileCompleteRequest } from "../../../../../../types";
 import R2Client from "@server/cloudflare/R2Client";
 
 import { NextRequest, NextResponse } from "next/server";

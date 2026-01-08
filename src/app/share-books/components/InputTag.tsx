@@ -4,8 +4,10 @@ import {
   KeyboardEventHandler,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
+import { useFormContext } from "react-hook-form";
 
 const styles = {
   label: "text-black/50 dark:text-white/90",
@@ -29,13 +31,21 @@ const styles = {
 };
 
 interface InputTagProps extends InputProps {
-    onChangeTags?: (tags: string[]) => void;
+  onChangeTags?: (tags: { name: string}[]) => void;
+  maxTags?: number;
 }
 
-export default function InputTag(props: InputTagProps) {
-    const maxTags = 3;
-  const [tags, setTags] = useState<string[]>([]);
+export default function InputTag({
+  onChangeTags,
+  maxTags = 3,
+  ...restProps
+}: InputTagProps) {
+  const {
+    formState: { isDirty, isSubmitted },
+  } = useFormContext();
+  const [tags, setTags] = useState<{ name: string }[]>([]);
   const [text, setText] = useState("");
+  const skipInputRef = useRef(false);
   const {
     Component,
     label,
@@ -56,7 +66,7 @@ export default function InputTag(props: InputTagProps) {
     getErrorMessageProps,
     getClearButtonProps,
   } = useInput({
-    ...props,
+    ...restProps,
     // custom styles
     classNames: {
       ...styles,
@@ -76,14 +86,21 @@ export default function InputTag(props: InputTagProps) {
   const onInput: ChangeEventHandler<HTMLInputElement> = ({
     target: { value: text },
   }) => {
-    const filteredText = text.replace(/[^a-z ]/g, "");
+    if (skipInputRef.current) {
+      skipInputRef.current = false;
+      return;
+    }
+
+    if (tags.length === maxTags) return;
+
+    const filteredText = text.replace(/[^\p{L} ]/gu, "");
     let lastInput = filteredText;
-    if (text.endsWith(",")) {
-      const newTags = text.split(",").map((text) => text.trim());
-      const cleanTags = newTags.filter((text) => text != "");
+    if (text.endsWith(",") && text.length > 1) {
+      const newTag = lastInput;
+      const alreadyExist = tags.some((tag) => tag.name === newTag);
       lastInput = "";
-      if(tags.length < maxTags) {
-        setTags([...tags, ...cleanTags]);
+      if (tags.length < maxTags && !alreadyExist) {
+        setTags((prevTags) => [...prevTags, { name: newTag }]);
       }
     }
     setText(lastInput);
@@ -92,31 +109,40 @@ export default function InputTag(props: InputTagProps) {
   const onDelete: KeyboardEventHandler<HTMLInputElement> = ({ key }) => {
     if (key == "Backspace" && text == "") {
       const [lastTag, ...restTags] = tags.toReversed();
-      if(lastTag) {
+      if (lastTag) {
         setTags(restTags.toReversed());
-      }
-      if(restTags) {
-        setText(lastTag);
+        setText(lastTag.name);
+        skipInputRef.current = true;
       }
     }
   };
 
   useEffect(() => {
-    props.onChangeTags?.(tags);
-  }, [tags])
+    onChangeTags?.(tags);
+  }, [tags]);
+
+  useEffect(() => {
+    if (!isDirty && isSubmitted) {
+      setText("");
+      setTags([]);
+    }
+  }, [isDirty, isSubmitted]);
 
   const innerWrapper = useMemo(
     () => (
-      <div {...getInnerWrapperProps()} className="flex gap-1">
+      <div
+        {...getInnerWrapperProps()}
+        className="flex gap-1 overflow-auto pb-1 [&::-webkit-scrollbar]:h-[6px] [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-300"
+      >
         {startContent && startContent}
         <div className="inline-flex gap-1">
-          {tags.map((text, idx) => (
+          {tags.map(({ name }, idx) => (
             <Chip
               size="sm"
               className="px-3.5 py-1 font-medium text-[10px] bg-blue-transparent/25 text-blue"
               key={idx}
             >
-              {text}
+              { name }
             </Chip>
           ))}
         </div>
@@ -126,6 +152,7 @@ export default function InputTag(props: InputTagProps) {
           onChange={onInput}
           onKeyDown={onDelete}
           value={text}
+          className={`bg-transparent focus-visible:bg-transparent focus-visible:outline-none`}
         />
         {end && end}
       </div>

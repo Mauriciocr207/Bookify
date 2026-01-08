@@ -1,0 +1,86 @@
+import { UploadMultipartFileResponse } from "@app-types/responses";
+import {
+  CreateMultipartUploadCommand,
+  UploadPartCommand,
+} from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { FileUploadConfig } from "@config";
+import R2Client from "@server/cloudflare/R2Client";
+import { NextRequest, NextResponse } from "next/server";
+import { randomUUID } from "node:crypto";
+
+const { R2_BUCKET_NAME } = process.env;
+const { maxFileSize } = FileUploadConfig;
+
+export async function POST(
+  req: NextRequest
+): Promise<NextResponse<UploadMultipartFileResponse>> {
+  try {
+    const uploadLength = parseInt(req.headers.get("x-upload-length") || "");
+
+    if (uploadLength < maxFileSize) {
+      return NextResponse.json(
+        {
+          error: "Bad request, the file size is too small",
+          urls: [],
+          uploadId: "",
+          uuid: "",
+        },
+        { status: 400 }
+      );
+    }
+
+    const uuid = randomUUID();
+    const Key = `tmp/${uuid}`;
+
+    const { UploadId } = await R2Client.send(
+      new CreateMultipartUploadCommand({
+        Bucket: R2_BUCKET_NAME,
+        Key,
+        ContentType: "application/pdf",
+      })
+    );
+
+    if (!UploadId) {
+      return NextResponse.json(
+        {
+          error: "Bad request, the file size is too small",
+          urls: [],
+          uploadId: "",
+          uuid: "",
+        },
+        {
+          status: 404,
+        }
+      );
+    }
+
+    const uploadParts = Math.ceil(uploadLength / maxFileSize);
+
+    const partNumbers = Array.from({ length: uploadParts }).map(
+      (_, i) => i + 1
+    );
+
+    const getSignedUrlsRequests = partNumbers.map((PartNumber) => {
+      const uploadPartCommand = new UploadPartCommand({
+        Bucket: R2_BUCKET_NAME,
+        Key,
+        UploadId,
+        PartNumber,
+      });
+      return getSignedUrl(R2Client, uploadPartCommand, { expiresIn: 3600 });
+    });
+
+    const urls = await Promise.all(getSignedUrlsRequests);
+
+    return NextResponse.json(
+      { urls, uploadId: UploadId, uuid },
+      { status: 200 }
+    );
+  } catch {
+    return NextResponse.json(
+      { error: "Internal Server Error", urls: [], uploadId: "", uuid: "" },
+      { status: 500 }
+    );
+  }
+}

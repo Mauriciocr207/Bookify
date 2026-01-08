@@ -1,4 +1,4 @@
-import { BookInterface, FolderInterface } from "@interfaces";
+import { BookInterface, FolderInterface } from "@app-types/indexeddb";
 import Dexie from "dexie";
 
 export type DexieDBInteface = Dexie & {

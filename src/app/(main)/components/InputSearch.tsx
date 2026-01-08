@@ -4,9 +4,11 @@ import { Input } from "@heroui/input";
 import InputSearchAnimation from "./InputSearchAnimation";
 import { SearchIcon } from "@components/icons";
 import { useRef } from "react";
+import { useFilterBookContext } from "@context";
 
 export default function InputSearch() {
   const inputSearch = useRef(null);
+  const { search, setSearch } = useFilterBookContext()
   return (
     <>
       <InputSearchAnimation inputSearch={inputSearch} />
@@ -22,6 +24,8 @@ export default function InputSearch() {
         }}
         placeholder="Busca títulos, temas o categorías..."
         startContent={<SearchIcon />}
+        value={search}
+        onValueChange={setSearch}
       />
     </>
   );

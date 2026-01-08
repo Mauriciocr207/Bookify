@@ -16,10 +16,8 @@ export default function useTheme() {
   const isDarkTheme = () => theme === "light";
 
   useEffect(() => {
-    if (isClientSide()) {
-      localStorage.theme = theme;
-      document.documentElement.classList.toggle("dark", theme === "dark");
-    }
+    localStorage.theme = theme;
+    document.documentElement.classList.toggle("dark", theme === "dark");
   }, [theme]);
 
   return { theme, setTheme, isDarkTheme };

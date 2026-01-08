@@ -1,13 +1,14 @@
 "use client";
 
 import { HeartIcon, BookmarkIcon, DownloadIcon } from "@components/icons";
-import { BookInterface } from "@interfaces";
 import { getImageProps } from "next/image";
 import { getBackgroundImage } from "@utils";
 import { Button, useDisclosure } from "@heroui/react";
 import { useState } from "react";
 import { useIconAnimate, useIconAnimateProps } from "@hooks";
 import BookItemModal from "./BookItemModal";
+import { BookCard } from "@app-types/models/BookCard";
+import Link from "next/link";
 
 const ANIMATE_CONFIG: useIconAnimateProps = {
   handlePressStartAnimation: {
@@ -21,14 +22,16 @@ const ANIMATE_CONFIG: useIconAnimateProps = {
 };
 
 interface Props {
-  book: BookInterface;
+  book: BookCard;
   isSaved?: boolean;
+  onDeleteLocalBook?: (deletedBookId: string) => void;
 }
 
-export default function BookItem({ book, isSaved = false }: Props) {
+export default function BookItem({ book, isSaved = false, onDeleteLocalBook }: Props) {
   const disclosureHook = useDisclosure();
   const [bookSaved, setBookSaved] = useState(isSaved);
   const [isBookLiked, setIsBookLiked] = useState(false);
+  const [likes, setLikes] = useState(book.likes);
 
   const {
     scope: bookmarkScope,
@@ -37,7 +40,7 @@ export default function BookItem({ book, isSaved = false }: Props) {
   } = useIconAnimate(ANIMATE_CONFIG);
   const {
     scope: heartScope,
-    // upAnimate: upAnimateHeart,
+    upAnimate: upAnimateHeart,
     downAnimate: downAnimateHeart,
   } = useIconAnimate(ANIMATE_CONFIG);
   const {
@@ -60,7 +63,8 @@ export default function BookItem({ book, isSaved = false }: Props) {
     upAnimateBookmark();
   }
 
-  function onDeleteBook() {
+  function onDeleteBook(deletedBookId: string) {
+    onDeleteLocalBook?.(deletedBookId);
     setBookSaved(false);
     upAnimateBookmark();
   }
@@ -68,6 +72,8 @@ export default function BookItem({ book, isSaved = false }: Props) {
   function handleBookLike() {
     downAnimateHeart();
     setIsBookLiked((prev) => !prev);
+    setLikes((prev) => (isBookLiked ? prev - 1 : prev + 1));
+    upAnimateHeart();
   }
 
   return (
@@ -92,14 +98,15 @@ export default function BookItem({ book, isSaved = false }: Props) {
             >
               <BookmarkIcon bold={bookSaved} />
             </Button>
-            <Button
-              variant="light"
-              isIconOnly
+            <Link
               className="min-w-fit w-fit h-fit overflow-visible"
               data-hover="false"
+              href={book.downloadUrl}
+              target="_blank"
+              rel="noopener noreferrer"
             >
               <DownloadIcon />
-            </Button>
+            </Link>
           </div>
           <Button
             ref={heartScope}
@@ -111,7 +118,7 @@ export default function BookItem({ book, isSaved = false }: Props) {
             onPress={handleBookLike}
           >
             <HeartIcon bold={isBookLiked} />
-            {book.likes}
+            {likes}
           </Button>
         </div>
       </div>
@@ -120,7 +127,7 @@ export default function BookItem({ book, isSaved = false }: Props) {
         isSavedBook={bookSaved}
         disclosureHook={disclosureHook}
         onSave={onSaveBook}
-        onDelete={onDeleteBook}
+        onDelete={(deletedBookId) => onDeleteBook(deletedBookId)}
       />
     </div>
   );

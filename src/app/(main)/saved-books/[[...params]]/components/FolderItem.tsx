@@ -11,8 +11,8 @@ import {
   DropdownTrigger,
   useDisclosure,
 } from "@heroui/react";
-import { FolderInterface } from "@interfaces";
-import { FolderModel } from "@models";
+import { FolderInterface } from "@app-types/indexeddb";
+import { useState } from "react";
 
 const MAX_LENGTH_NAME = 14;
 
@@ -21,7 +21,8 @@ interface Props {
 }
 
 export default function FolderItem({ folder }: Props) {
-    const { currentFolderId, setFolder } = useFolderContext();
+  const { currentFolderId, setFolder } = useFolderContext();
+  const [modalMode, setModalMode] = useState<"edit" | "delete" | null>(null);
   const disclosureHook = useDisclosure();
   const formattedName =
     folder.name.length > MAX_LENGTH_NAME
@@ -30,16 +31,27 @@ export default function FolderItem({ folder }: Props) {
 
   const handleClick = () => {
     setFolder(folder.id);
-    console.log('editando');
+  };
+
+  const beginHandleEditFolder = () => {
+    setModalMode("edit");
+    disclosureHook.onOpen();
   };
 
   const handleEditFolder = () => {
+    setModalMode(null);
     disclosureHook.onClose();
     setFolder(currentFolderId);
   };
 
-  const handleDeleteFolder = async () => {
-    await FolderModel.deleteFolder(folder.id);
+  const beginHandleDeleteFolder = async () => {
+    setModalMode("delete");
+    disclosureHook.onOpen();
+  };
+
+  const handleDeleteFolder = () => {
+    setModalMode(null);
+    disclosureHook.onClose();
     setFolder(currentFolderId);
   };
 
@@ -59,11 +71,11 @@ export default function FolderItem({ folder }: Props) {
           </Button>
         </DropdownTrigger>
         <DropdownMenu>
-          <DropdownItem onPress={() => disclosureHook.onOpen()} key="edit">
+          <DropdownItem onPress={beginHandleEditFolder} key="edit">
             Renombrar
           </DropdownItem>
           <DropdownItem
-            onPress={handleDeleteFolder}
+            onPress={beginHandleDeleteFolder}
             key="delete"
             className="text-danger"
             color="danger"
@@ -73,10 +85,12 @@ export default function FolderItem({ folder }: Props) {
         </DropdownMenu>
       </Dropdown>
       <FolderModal
-        editMode={true}
+        editMode={modalMode === "edit"}
+        deleteMode={modalMode === "delete"}
         folder={folder}
         disclosureHook={disclosureHook}
         onEditFolder={handleEditFolder}
+        onDeleteFolder={handleDeleteFolder}
         value={folder.name}
       />
     </div>

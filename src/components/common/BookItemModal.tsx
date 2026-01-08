@@ -16,13 +16,14 @@ import {
   ModalHeader,
   useDisclosure,
 } from "@heroui/react";
-import { BookInterface, FolderInterface } from "@interfaces";
-import { BookModel, FolderModel } from "@models";
+import { FolderInterface } from "@app-types/indexeddb";
+import { LocalBookModel, LocalFolderModel } from "@models";
 import { useEffect, useState } from "react";
 import FolderModal from "./FolderModal";
+import { BookCard } from "@app-types/models/BookCard";
 
 async function getFolders(parentFolderId: string) {
-  return await FolderModel.getFoldersByParentId(parentFolderId);
+  return await LocalFolderModel.getFoldersByParentId(parentFolderId);
 }
 
 export default function BookItemModal({
@@ -33,10 +34,10 @@ export default function BookItemModal({
   onDelete,
 }: {
   disclosureHook: ReturnType<typeof useDisclosure>;
-  book: BookInterface;
+  book: BookCard;
   isSavedBook: boolean;
   onSave: (savedId: string) => void;
-  onDelete: () => void;
+  onDelete: (deletedBookId: string) => void;
 }) {
   const { isOpen, onOpenChange, onClose } = disclosureHook;
   const disclosureFolder = useDisclosure();
@@ -50,7 +51,7 @@ export default function BookItemModal({
       const breadcrumbs =
         actualFolderId === "root"
           ? []
-          : await FolderModel.getBreadcrumbs(actualFolderId);
+          : await LocalFolderModel.getBreadcrumbs(actualFolderId);
       const folders = await getFolders(actualFolderId);
       setFolderId(actualFolderId);
       setFolders(folders);
@@ -59,8 +60,9 @@ export default function BookItemModal({
   }, [actualFolderId, isOpen]);
 
   async function handleBookSave() {
-    const savedBook = await BookModel.saveBook({
-      ...book,
+    console.log(folderId === "root" ? actualFolderId : folderId, book.id);
+    const savedBook = await LocalBookModel.saveBook({
+      id: String(book.id),
       parentId: folderId === "root" ? actualFolderId : folderId,
     });
     onClose();
@@ -68,9 +70,9 @@ export default function BookItemModal({
   }
 
   async function handleBookDelete() {
-    await BookModel.deleteBook(book.id);
+    await LocalBookModel.deleteBook({ id: String(book.id) });
     onClose();
-    onDelete();
+    onDelete( String(book.id) );
   }
 
   async function onSaveFolder() {

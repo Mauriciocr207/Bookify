@@ -12,7 +12,7 @@ import {
   ModalHeader,
   useDisclosure,
 } from "@heroui/react";
-import { FolderModel } from "@models";
+import { LocalFolderModel } from "@models";
 import { KeyboardEvent } from "@react-types/shared";
 import { useState } from "react";
 
@@ -22,7 +22,7 @@ export default function CreateFolderButton() {
   const [inputValue, setInputValue] = useState("Carpeta 1");
 
   async function handleCreateFolder() {
-    await FolderModel.saveFolder({
+    await LocalFolderModel.saveFolder({
       name: inputValue,
       parentId: currentFolderId,
       id: Date.now().toString(),

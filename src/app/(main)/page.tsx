@@ -2,9 +2,10 @@ import { Metadata } from "next";
 import { Button } from "@heroui/button";
 import { ROUTES } from "@config";
 import Link from "next/link";
-import BookGallery from "./components/BookGallery";
+import BookGallery, { BookGalleryProps } from "./components/BookGallery";
 import { GetCategoriesResponse } from "@app-types/responses";
 import getCategories from "@server/categories/getCategories";
+import getBooks from "@server/books/getBooks";
 
 export const metadata: Metadata = {
   title: "Bookify",
@@ -28,7 +29,19 @@ export default async function Home({ searchParams }: PageProps) {
     ? getTagParam.split(",").filter((tag) => tag.trim() !== "")
     : [];
 
-  const params = { page, search, tags };
+  const { books, pagination } = await getBooks({
+    page,
+    filter: {
+      search,
+      tags,
+    },
+  });
+
+  const params: BookGalleryProps["params"] = {
+    page,
+    search,
+    tags,
+  };
 
   const { categories }: GetCategoriesResponse = await getCategories();
   return (
@@ -60,8 +73,8 @@ export default async function Home({ searchParams }: PageProps) {
       </main>
       <section className="flex flex-col items-center justify-center mt-20">
         <BookGallery
-          //   books={books}
-          //   pagination={pagination}
+          books={books}
+          pagination={pagination}
           filteringTags={categories}
           params={params}
         />

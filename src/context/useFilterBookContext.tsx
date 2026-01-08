@@ -3,7 +3,14 @@ import { GetBookResponse } from "@app-types/responses";
 import { LocalBookModel } from "@models";
 import { BookGalleryProps } from "app/(main)/components/BookGallery";
 import { useDebouncedEffect } from "hooks/useDebouncedEffect";
-import { createContext, useContext, useEffect, useRef, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  useCallback,
+} from "react";
 
 export type Pagination = NonNullable<GetBookResponse["pagination"]>;
 
@@ -24,24 +31,24 @@ const FilterBookContext = createContext<FilterBookContextType | null>(null);
 
 export function FilterBookContextProvider({
   children,
-  initialParams,
+  initialBooks,
+  initialPagination,
+  initialFilter,
 }: {
   children: React.ReactNode;
-  initialParams: BookGalleryProps["params"];
+  initialBooks: BookCard[];
+  initialPagination: Pagination;
+  initialFilter: BookGalleryProps["params"];
 }) {
   const [isLoading, setLoading] = useState(false);
-  const [search, setSearch] = useState(initialParams.search);
+  const [search, setSearch] = useState(initialFilter.search);
   const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [tags, setTags] = useState<string[]>(initialParams.tags);
-  const [books, setBooks] = useState<BookCard[]>([]);
+  const [tags, setTags] = useState<string[]>(initialFilter.tags);
+  const [books, setBooks] = useState<BookCard[]>(initialBooks);
   const [controlledPage, setControlledPage] = useState(1);
-  const [pagination, setPagination] = useState<Pagination>({
-    page: initialParams.page,
-    pageSize: 5,
-    totalPages: 0,
-    totalItems: 0,
-  });
+  const [pagination, setPagination] = useState<Pagination>(initialPagination);
   const abortController = useRef<AbortController | null>(null);
+  const firstRender = useRef(true);
 
   useDebouncedEffect(
     () => {
@@ -52,51 +59,45 @@ export function FilterBookContextProvider({
     500
   );
 
-  async function fetchBooks() {
+  const fetchBooks = useCallback(async () => {
     try {
       abortController.current?.abort();
       abortController.current = new AbortController();
 
       setLoading(true);
-      await fetch(
-        "/api/book/get?search=" +
-          debouncedSearch +
-          "&tags=" +
-          tags.join(",") +
-          "&page=" +
-          controlledPage,
-        { signal: abortController.current.signal }
-      )
-        .then((res) => res.json())
-        .then((data: { books: BookCard[]; pagination: Pagination }) => {
-          const booksSaved: LocalBookCard[] = [];
-          data.books.forEach(async (book) => {
-            const isSaved = await LocalBookModel.isBookSaved({
-              id: String(book.id),
-            });
-            booksSaved.push({
-              ...book,
-              isSaved,
-            });
-          });
-          return { books: booksSaved, pagination }
-        })
-        .then((data: { books: BookCard[]; pagination: Pagination }) => {
-          setBooks(data.books);
-          setPagination(data.pagination);
-        });
-      setLoading(false);
-    } catch (error) {
-      if (error instanceof DOMException && error.name === "AbortError") {
-        console.warn("books fetch aborted");
-        return;
-      }
 
+      const res = await fetch(
+        `/api/book/get?search=${debouncedSearch}&tags=${tags.join(
+          ","
+        )}&page=${controlledPage}`,
+        { signal: abortController.current.signal }
+      );
+
+      const data = await res.json();
+
+      const booksSaved: LocalBookCard[] = await Promise.all(
+        data.books.map(async (book: BookCard) => ({
+          ...book,
+          isSaved: await LocalBookModel.isBookSaved({ id: String(book.id) }),
+        }))
+      );
+
+      setBooks(booksSaved);
+      setPagination(data.pagination);
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") return;
       console.warn("Error fetching books:", error);
+    } finally {
+      setLoading(false);
     }
-  }
+  }, [debouncedSearch, controlledPage, tags]);
 
   useEffect(() => {
+    if(firstRender.current) {
+        firstRender.current = false;
+        return;
+    }
+
     fetchBooks();
   }, [debouncedSearch, tags, controlledPage]);
 
